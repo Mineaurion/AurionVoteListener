@@ -1,0 +1,112 @@
+# AurionsVoteListener #
+# http://www.mineaurion.com #
+# settings section
+# onlineonly - Only delivers rewards when the player is online.  If they are offline it will wait and deliver when they next join the server"!" #
+# broadcastoffline - Show broadcast message for offline queued votes. #
+# votecommand - Enables the /vote command which will show the message contained in the votemessage section at the bottom of the config. #
+# joinmessage - Show the message contained in the joinmessage section at the bottom of this config when a player joins the server. #
+# votetopnumber - Number of players to display for the topvote #
+# AddExtraRandom: true (give extra random reward) Depending on the chance
+# GiveAllExtraReward: Gives all rewards of lower numbers
+# setup MySQL #
+# dbHost - Database IP / Hostname for MySQL. #
+# dbPort - Database port for MySQL. #
+# dbUser - Database username for MySQL. #
+# dbPass - Database password for MySQL. #
+# dbName - Database name for MySQL. #
+# dbPrefix - Database table prefix. #
+settings {
+  onlineonly=true
+	broadcastoffline=false
+	votecommand=true
+	joinmessage=true
+	dbHost=""
+	dbPort=3306
+	dbUser="root"
+	dbPass=""
+	dbName="Listener"
+	dbPrefix=""
+	dbTableTotal="ListenerTotal"
+	dbTableQueue="ListenerQueue"
+	votetopnumber=10
+	AddExtraReward=false
+	GiveChanceReward=true
+}
+
+# services section (DEFAULT is used if service doesn't exist) #
+# The example below would give 5 diamonds per vote. #
+# Never remove DEFAULT #
+services {
+	DEFAULT{
+	broadcast="<GREEN><username> <GOLD>has voted @ <GREEN><service> <GOLD>and received <GREEN>5 Diamonds !"
+	playermessage="<GREEN>Thanks for voting at <AQUA><service> !"
+	commands=[
+		"give <username> book 5"
+	]
+	}
+	
+	MC-Index{
+	broadcast="<GREEN><username> <GOLD>has voted @ <GREEN> MC-Index <GOLD>and received <GREEN>many items !"
+	playermessage="<GREEN>Thanks for voting at <AQUA><service> !"
+	commands=[
+		    "minecraft:give <username> minecraft:diamond 2",
+        "minecraft:give <username> minecraft:redstone 2",
+        "minecraft:give <username> minecraft:dye 2 4",
+        "minecraft:give <username> railcraft:ingot 2",
+        "minecraft:give <username> harvestcraft:brownieItem 2"
+	]
+	}
+}
+
+#  The example below would give a 30% chance of a voter receiving an extra 5 book, and a 10% chance of an extra 5 book and 5 ghast tear.
+ExtraReward{
+	30{
+		broadcast="<GREEN><username> <GOLD>was super lucky and received an <GREEN>extra 5 book"
+		playermessage="<GREEN>You were super lucky and received an <GREEN> extra 5 book "
+		commands=[
+			"give <username> book 5"
+		]
+	}
+	10{
+		broadcast="<GREEN><username> <GOLD>was super lucky and received an <GREEN>extra 5 ghast tear"
+		playermessage="<GREEN>You were lucky and received an extra 5 book"
+		commands=[
+			"give <username> ghast tear 5"
+		]
+	}
+}
+
+
+# Available formatting codes for messages: #
+# <service> = service name #
+# <username>= player username #
+# <votes> = current vote total #
+# & = Colour Symbol to enter manual colours / control codes #
+# <AQUA> <BLACK> <BLUE> <DARK_AQUA> <DARK_BLUE> #
+# <DARK_GRAY> <DARK_GREEN> <DARK_PURPLE> <DARK_RED> <GOLD> #
+# <GRAY> <GREEN> <LIGHT_PURPLE> <RED> <WHITE> <YELLOW> <BOLD> #
+# <ITALIC> <UNDERLINE> <STRIKETHROUGH> <STRIKE> #
+# <STRIKETHROUGH> <MAGIC> <RESET> #
+votemessage=[
+    "<GOLD>-----------------------------------------------------"
+    "Votes :<RED> http://mineaurion.com/vote"
+    "<GOLD>-----------------------------------------------------"
+    "<AQUA>You currently have <GREEN><votes> Votes"
+    ]  
+
+joinmessage=[
+    "<GOLD>-----------------------------------------------------",
+    "Vote for us every day for in game rewards and extras",
+    "<GOLD>-----------------------------------------------------",
+    "<AQUA>You currently have <GREEN><votes> Votes"
+    ]
+
+# Additional formatting codes for below:  #
+# <TOTAL> = vote total - used for /rewards #
+# <POSITION> = current rank - used for /votetop #
+# <username> = player name - used for /votetop #
+votetopformat="<POSITION>. <GREEN><username> - <WHITE><TOTAL>"
+
+votetopheader=[
+    "<GOLD>---------------- <WHITE>( <DARK_AQUA>Top Voters<WHITE> ) <GOLD>----------------"
+    ]

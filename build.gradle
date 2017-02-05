@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+group = "AurionsVoteListener"
+version = "1.0.0"
+description "vote Listener"
+
+configurations {
+    shadow
+    compile.extendsFrom shadow
+}
+
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'Sponge maven repo'
+        url 'http://repo.spongepowered.org/maven'
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+
+dependencies {
+    compile "org.spongepowered:spongeapi:4.0.3"
+    compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+task debug << {
+    println "java.home is " + System.properties['java.home']
+}
