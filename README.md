@@ -1,3 +1,3 @@
-#Mineaurion
+#AurionVoteListener
 
-You can find all codes of mineaurion plugins
+You can find the code for the AurionVoteListener plugin
