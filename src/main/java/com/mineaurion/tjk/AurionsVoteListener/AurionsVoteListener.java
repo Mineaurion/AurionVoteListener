@@ -32,7 +32,9 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -103,10 +105,12 @@ public class AurionsVoteListener {
 	public boolean AddExtraRandom=false;
 	public boolean GiveChanceReward=true;
 	public static List<Integer> extrarandom = new ArrayList<Integer>();
+	public int delay = 300;
 	
 	//Message
 	public static List<String> voteMessage = new ArrayList<String>();
 	public List<String> messagejoin = new ArrayList<String>();
+	public List<String> annoucement = new ArrayList<String>();
 	
 	//votetop
 	public String votetopformat="<POSITION>. <GREEN><username> - <WHITE><TOTAL>";
@@ -170,7 +174,7 @@ public class AurionsVoteListener {
 				 .build();
 		
 		CommandSpec reloadCmd = CommandSpec.builder()
-				 .permission("listener.adminn")
+				 .permission("listener.admin")
 				 .description(Text.of("Reload your configs"))
 				 .executor(new CommandExecutor(){
 
@@ -216,6 +220,16 @@ public class AurionsVoteListener {
 		 Sponge.getCommandManager().register(this, VoteCmd, "Vote");
 		 Sponge.getCommandManager().register(this, votetopCmd, "Votetop");
 		 logger.info("AurionsVoteListener Enabled");
+		 
+		 Task task = (Task) Task.builder().execute(new Runnable() {
+			 public void run(){
+				 for(int i = 0;i<annoucement.size();i++){
+				 	MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
+					messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(annoucement.get(i), "", ""));
+				 }
+			 }
+		 }).async().delayTicks(delay*20).intervalTicks(delay*20).submit(plugin);
+		 if(delay<0){task.cancel();}
 	 }
 	
 	
@@ -245,6 +259,7 @@ public class AurionsVoteListener {
 		SQLType = Node.getNode("settings","dbMode").getString();
 		AddExtraRandom = Node.getNode("settings","AddExtraRandom").getBoolean();
 		GiveChanceReward = Node.getNode("settings","GiveChanceReward").getBoolean();
+		delay = Node.getNode("settings","AnnouncementDelay").getInt();
 		
 		for(Entry<Object, ? extends ConfigurationNode> markers : rootNode.getNode("ExtraReward").getChildrenMap().entrySet())
 		{
@@ -258,6 +273,7 @@ public class AurionsVoteListener {
 		//Message
 		voteMessage = Node.getNode("votemessage").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
 		messagejoin = Node.getNode("joinmessage").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
+		annoucement = Node.getNode("Announcement").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
 
 		//topvote
 		votetopformat = Node.getNode("votetopformat").getString();
