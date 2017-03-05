@@ -291,8 +291,7 @@ public class AurionsVoteListener {
         }
 		
 		GetValues(rootNode);
-		
-		if(dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null){
+		if((SQLType=="MySQL")&&(dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null)){
 			getLogger().warn("Please config database");
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §c----------------------"));
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §cPlease config database"));
@@ -377,7 +376,7 @@ public class AurionsVoteListener {
 	{
 		Player player = (Player)event.getTargetEntity();
 		String username = player.getName();
-		if(dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null){
+		if((SQLType=="MySQL")&&dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null){
 			if(player.hasPermission("*")||player.hasPermission("listener.top")){
 				player.sendMessage(Text.builder("<AurionsVoteListener> Please config Database.").color(TextColors.RED).build());
 			}
