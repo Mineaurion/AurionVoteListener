@@ -139,7 +139,7 @@ public class SwitchSQL {
 			}else if(SQLTYPE.equals("File")){
 				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` (`IGN`, `votes`, `lastvoted`) VALUES ('"+ player + "', " + totalvotes + ", " + now + ");");
 				sql.execute();
-				sql = connection.prepareStatement("UPDATE `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` SET `votes` = " + totalvotes + ", `lastvoted` = " + now + ", `IGN` = '" + player + "';");
+				sql = connection.prepareStatement("UPDATE `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` SET `votes` = " + totalvotes + ", `lastvoted` = " + now + " WHERE `IGN` = '" + player + "';");
 				sql.execute();
 			}
 			sql.close();

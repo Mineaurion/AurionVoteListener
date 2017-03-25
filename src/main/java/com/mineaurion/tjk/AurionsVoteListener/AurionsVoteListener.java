@@ -2,6 +2,8 @@ package com.mineaurion.tjk.AurionsVoteListener;
 
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -9,11 +11,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
-
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.command.CommandException;
@@ -34,6 +39,7 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -50,10 +56,16 @@ import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-@Plugin(id =AurionsVoteListener.AURIONS_ID, name="AurionsVoteListener",version="1.0",authors = {"THEJean_Kevin"}, description = "A votifier listener for Sponge", dependencies = {@Dependency(id = "nuvotifier", optional = true)})
+@Plugin(id =AurionsVoteListener.AURIONS_ID, name="AurionsVoteListener",version="1.3",authors = {"THEJean_Kevin"}, description = "A votifier listener for Sponge", dependencies = {@Dependency(id = "nuvotifier", optional = true)})
 public class AurionsVoteListener {
+	
+	public int version = 3;
+	
+	@Inject
+	Game game;
 	
 	@Inject Logger logger;
     public Logger getLogger()
@@ -87,6 +99,7 @@ public class AurionsVoteListener {
 	public final static String AURIONS_ID = "aurionsvotelistener";
 	public static final String ANSI_RED = "\u001B[31m";
 	public static final String ANSI_RESET = "\u001B[0m";
+	public Task task;
 	
 	//Settings
 	public boolean onlineOnly=true;
@@ -178,8 +191,11 @@ public class AurionsVoteListener {
 				 .description(Text.of("Reload your configs"))
 				 .executor(new CommandExecutor(){
 
+					
+
 					@Override
 					public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+						task.cancel();
 						reloadConfig();
 						src.sendMessage(Text.of("Reload success"));
 						return CommandResult.success();
@@ -221,15 +237,6 @@ public class AurionsVoteListener {
 		 Sponge.getCommandManager().register(this, votetopCmd, "Votetop");
 		 logger.info("AurionsVoteListener Enabled");
 		 
-		 Task task = (Task) Task.builder().execute(new Runnable() {
-			 public void run(){
-				 for(int i = 0;i<annoucement.size();i++){
-				 	MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
-					messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(annoucement.get(i), "", ""));
-				 }
-			 }
-		 }).async().delayTicks(delay*20).intervalTicks(delay*20).submit(plugin);
-		 if(delay<0){task.cancel();}
 	 }
 	
 	
@@ -246,17 +253,17 @@ public class AurionsVoteListener {
 		broadcastoffline = Node.getNode("settings","broadcastoffline").getBoolean();
 		votecommand = Node.getNode("settings","votecommand").getBoolean();
 		joinmessage = Node.getNode("settings","joinmessage").getBoolean();
+		SQLType = Node.getNode("settings","dbMode").getString();
 		dbHost= Node.getNode("settings","dbHost").getString();
 		dbPort= Node.getNode("settings","dbPort").getInt();
+		dbPrefix = Node.getNode("settings","dbPrefix").getString();
 		dbUser = Node.getNode("settings","dbUser").getString();
 		dbPass = Node.getNode("settings","dbPass").getString();
 		dbName = Node.getNode("settings","dbName").getString();
-		dbPrefix = Node.getNode("settings","dbPrefix").getString();
 		dbTableTotal = Node.getNode("settings","dbTableTotal").getString();
 		dbTableQueue = Node.getNode("settings","dbTableQueue").getString();
 		votetopnumber = Node.getNode("settings","votetopnumber").getInt();
 		SQLFile = Node.getNode("settings","dbFile").getString();
-		SQLType = Node.getNode("settings","dbMode").getString();
 		AddExtraRandom = Node.getNode("settings","AddExtraRandom").getBoolean();
 		GiveChanceReward = Node.getNode("settings","GiveChanceReward").getBoolean();
 		delay = Node.getNode("settings","AnnouncementDelay").getInt();
@@ -278,12 +285,20 @@ public class AurionsVoteListener {
 		//topvote
 		votetopformat = Node.getNode("votetopformat").getString();
 		votetopheader = Node.getNode("votetopheader").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
+		
 		}
 	
 	
 	public void reloadConfig(){
 		try {
             rootNode = loader.load();
+            
+            if(rootNode.getNode("Version").getInt()!=version){
+            		rootNode.mergeValuesFrom(loadDefault());
+            		rootNode.getNode("Version").setValue(version);
+            		loader.save(rootNode);
+            }
+            
             getLogger().info("loading successfull");
         } catch (IOException e) {
             getLogger().error("There was an error while reloading your configs");
@@ -291,6 +306,7 @@ public class AurionsVoteListener {
         }
 		
 		GetValues(rootNode);
+		
 		if((SQLType=="MySQL")&&(dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null)){
 			getLogger().warn("Please config database");
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §c----------------------"));
@@ -308,8 +324,26 @@ public class AurionsVoteListener {
 				e.printStackTrace();
 			}
 		}
+		
+		//Runnable task
+		
+		
+		task = (Task) Task.builder().execute(new Runnable() {
+			 public void run(){
+				 for(int i = 0;i<annoucement.size();i++){
+				 	MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
+					messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(annoucement.get(i), "", ""));
+				 }
+			 }
+		 }).async().delay(delay, TimeUnit.SECONDS).interval(delay, TimeUnit.SECONDS).submit(plugin);
+		 if(delay<0){task.cancel();}
+		
+		
 	}
 	
+	private ConfigurationNode loadDefault() throws IOException {
+        return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(this, "aurionsvotelistener.conf").get().getUrl()).build().load(loader.getDefaultOptions());
+    }
 
 
 	public static AurionsVoteListener GetInstance(){
@@ -347,7 +381,35 @@ public class AurionsVoteListener {
 	    	      .replace("<YELLOW>", "§e").replace("<BOLD>", "§l").replace("<ITALIC>", "§o")
 	    	      .replace("<MAGIC>", "§k").replace("<RESET>", "§r").replace("<STRIKE>", "§m")
 	    	      .replace("<STRIKETHROUGH>", "§m").replace("<UNDERLINE>", "§n").replace("<votes>", String.valueOf(votes));
-	    return TextSerializers.formattingCode('§').deserialize(message);
+	    
+	    
+	    if(message.toLowerCase().contains("http"))
+	    {
+	    	String url = "";
+	    	Pattern pattern = Pattern.compile("http(\\S+)\\b");
+	    	Matcher matcher = pattern.matcher(message);
+	    	if (matcher.find())
+	    	{
+	    	  url = matcher.group(0);
+	    	}
+	    	Text text = null;	    	
+	    	try {
+	    		text = TextSerializers.formattingCode('§').deserialize(message).toBuilder().onClick(TextActions.openUrl(new URL(url))).build();	
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				return Text.of("Url False, contact admin");
+			}
+	    	
+	    	return text;
+	    }
+
+	    
+	    else
+	    {
+	    	return TextSerializers.formattingCode('§').deserialize(message);
+	    } 
+	    
+	   
 	    
 	}
 	
@@ -376,7 +438,7 @@ public class AurionsVoteListener {
 	{
 		Player player = (Player)event.getTargetEntity();
 		String username = player.getName();
-		if((SQLType=="MySQL")&&dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null){
+		if((AurionsVoteListener.GetInstance().SQLType=="MySQL")&&(dbHost.isEmpty()||dbHost==null||dbUser.isEmpty()||dbUser==null||dbPass.isEmpty()||dbPass==null)){
 			if(player.hasPermission("*")||player.hasPermission("listener.top")){
 				player.sendMessage(Text.builder("<AurionsVoteListener> Please config Database.").color(TextColors.RED).build());
 			}
