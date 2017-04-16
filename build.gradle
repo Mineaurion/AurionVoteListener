@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = "AurionsVoteListener"
-version = "1.0.3"
+version = "1.0.4"
 
 configurations {
     shadow

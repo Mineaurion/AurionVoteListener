@@ -160,8 +160,6 @@ public class SwitchSQL {
 			}else if(SQLTYPE.equals("File")){
 				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('"+username+"', '"+serviceName+"', '"+ timeStamp+"', '"+address+"');");
 				sql.execute();
-				sql = connection.prepareStatement("UPDATE `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` SET `IGN` = " + username + ", `service` = " + serviceName+ ", `timestamp` = '" + timeStamp + ", `ip` = '" + address + "';");
-				sql.execute();
 			}
 			sql.close();
 		} catch (SQLException e) {
