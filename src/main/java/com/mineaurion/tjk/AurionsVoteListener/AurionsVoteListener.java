@@ -56,13 +56,13 @@ import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 @Plugin(id =AurionsVoteListener.AURIONS_ID, name="AurionsVoteListener",version="1.3",authors = {"THEJean_Kevin"}, description = "A votifier listener for Sponge", dependencies = {@Dependency(id = "nuvotifier", optional = true)})
 public class AurionsVoteListener {
 	
-	public int version = 3;
+	public int version = 6;
+	public boolean old = false;
 	
 	@Inject
 	Game game;
@@ -118,7 +118,9 @@ public class AurionsVoteListener {
 	public boolean AddExtraRandom=false;
 	public boolean GiveChanceReward=true;
 	public static List<Integer> extrarandom = new ArrayList<Integer>();
+	public static List<Integer> cumulativreward = new ArrayList<Integer>();
 	public int delay = 300;
+	public boolean cumulativevoting = false;
 	
 	//Message
 	public static List<String> voteMessage = new ArrayList<String>();
@@ -127,6 +129,7 @@ public class AurionsVoteListener {
 	
 	//votetop
 	public String votetopformat="<POSITION>. <GREEN><username> - <WHITE><TOTAL>";
+	
 	public static List<String> votetopheader = new ArrayList<String>();
 	
 	
@@ -141,7 +144,7 @@ public class AurionsVoteListener {
         getLogger().info("Trying To setup Config Loader");
 		
         Asset configAsset = plugin.getAsset("aurionsvotelistener.conf").get();
-
+        
 
         if (Files.notExists(defaultConfig)) {
             if (configAsset != null) {
@@ -267,6 +270,7 @@ public class AurionsVoteListener {
 		AddExtraRandom = Node.getNode("settings","AddExtraRandom").getBoolean();
 		GiveChanceReward = Node.getNode("settings","GiveChanceReward").getBoolean();
 		delay = Node.getNode("settings","AnnouncementDelay").getInt();
+		cumulativevoting = Node.getNode("settings","cumulativevoting").getBoolean();
 		
 		for(Entry<Object, ? extends ConfigurationNode> markers : rootNode.getNode("ExtraReward").getChildrenMap().entrySet())
 		{
@@ -274,6 +278,13 @@ public class AurionsVoteListener {
 			extrarandom.add(100-Integer.parseInt(key));
 		}
 		Collections.sort(extrarandom);
+		
+		for(Entry<Object, ? extends ConfigurationNode> markers : rootNode.getNode("cumulativevoting").getChildrenMap().entrySet())
+		{
+			String key = (String) markers.getKey();
+			cumulativreward.add(Integer.parseInt(key));
+		}
+		Collections.sort(cumulativreward);
 		
 		
 		
@@ -291,14 +302,15 @@ public class AurionsVoteListener {
 	
 	public void reloadConfig(){
 		try {
-            rootNode = loader.load();
+			 rootNode = loader.load();
+			 int versionconfig = rootNode.getNode("Version").getInt();
+            loader.save(rootNode);
             
-            if(rootNode.getNode("Version").getInt()!=version){
-            		rootNode.mergeValuesFrom(loadDefault());
-            		rootNode.getNode("Version").setValue(version);
-            		loader.save(rootNode);
+            if(versionconfig!=version){
+            	updateconfig.update(versionconfig, plugin,defaultConfig,loader);  	
             }
             
+           
             getLogger().info("loading successfull");
         } catch (IOException e) {
             getLogger().error("There was an error while reloading your configs");
@@ -340,10 +352,6 @@ public class AurionsVoteListener {
 		
 		
 	}
-	
-	private ConfigurationNode loadDefault() throws IOException {
-        return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(this, "aurionsvotelistener.conf").get().getUrl()).build().load(loader.getDefaultOptions());
-    }
 
 
 	public static AurionsVoteListener GetInstance(){
@@ -429,7 +437,12 @@ public class AurionsVoteListener {
 			}
 		}
 		else{
+			Optional<Player> target = Sponge.getServer().getPlayer(player);
+			if(target.isPresent()){
 			RewardsTask.online(player, vote.getServiceName());
+			}else{
+				Sponge.getServer().getConsole().sendMessage(Text.of("The player is not connected, it's impossible to give reward"));
+			}
 		}
 	}
 	
