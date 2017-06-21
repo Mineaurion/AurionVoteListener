@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = "AurionsVoteListener"
-version = "1.0.6"
+version = "1.0.7"
 
 configurations {
     shadow
@@ -22,7 +22,7 @@ repositories {
 
 
 dependencies {
-    compile "org.spongepowered:spongeapi:4.0.3"
+    compile "org.spongepowered:spongeapi:6.0.0"
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 

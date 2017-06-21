@@ -55,6 +55,19 @@ public class SQLTask {
 	          sql.modifyQuery("ALTER TABLE `" + dbPrefix + TableTotal+"` ADD  `lastvoted` INTEGER DEFAULT 0;", connection);
 	        }
 	      }
+		 if (AurionsVoteListener.GetInstance().old) {
+				sql.modifyQuery("ALTER TABLE `" + dbPrefix + TableQueue + "` RENAME TO `" + dbPrefix + TableQueue + "old`;",
+						connection);
+				sql.modifyQuery(
+						"CREATE TABLE `" + dbPrefix + TableQueue
+								+ "` (`IGN` varchar(32) NOT NULL,`service` varchar(64), `timestamp` varchar(32), `ip` varchar(200));",
+						connection);
+
+				sql.modifyQuery("INSERT INTO `" + dbPrefix + TableQueue
+						+ "`(IGN,service,timestamp,ip) SELECT IGN,service,timestamp,ip FROM `" + dbPrefix + TableQueue
+						+ "`;", connection);
+				sql.modifyQuery("DROP TABLE `" + dbPrefix + TableQueue + "old`;", connection);
+			}
 	      if (!sql.tableExists(dbPrefix + TableQueue, connection)) {
 	        sql.modifyQuery("CREATE TABLE `" + dbPrefix + TableQueue+"` (`IGN` VARCHAR, `service` VARCHAR, `timestamp` VARCHAR, `ip` VARCHAR);", connection);
 	      }

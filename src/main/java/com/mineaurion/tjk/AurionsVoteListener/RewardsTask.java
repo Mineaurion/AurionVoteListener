@@ -47,19 +47,25 @@ public class RewardsTask {
 					target.get().sendMessage(Text.of("The default service has been deleted"));
 				}
 			}
+			
+			final List<String> Rewardtask = Reward;
+			
+			for (int i = 0; i < Rewardtask.size(); i++) {
+				final int y = i;
+				
 
-			for (int i = 0; i < Reward.size(); i++) {
-
-				// if(Reward.get(i).startsWith("/")){}
-
-				Sponge.getCommandManager().process(Sponge.getServer().getConsole(),
-						Reward.get(i).replace("<username>", player));
+				Sponge.getScheduler().createTaskBuilder().execute(()->
+				Sponge.getCommandManager().process(Sponge.getServer().getConsole().getCommandSource().get(),
+						Rewardtask.get(y).replace("<username>", player)))
+				.submit(AurionsVoteListener.GetInstance());
+				
 			}
 			MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
 			messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(Broadcast, service, player));
 			target.get().sendMessage(
 					Text.of(AurionsVoteListener.GetInstance().formatmessage(playermessage, service, player)));
 
+			
 			if (AurionsVoteListener.GetInstance().AddExtraRandom) {
 				random(player);
 			}
@@ -73,6 +79,59 @@ public class RewardsTask {
 		}
 
 	}
+	
+	public static void rewardoflline(String player, String service) {
+		int VoteTotal = SwitchSQL.TotalsVote(player);
+		long CurrentMiliseconde = System.currentTimeMillis();
+		boolean succes = SwitchSQL.Voted(player, VoteTotal + 1, CurrentMiliseconde);
+		Optional<Player> target = Sponge.getServer().getPlayer(player);
+		List<String> Reward = new ArrayList<String>();
+		
+
+		if (succes) {
+
+			Reward = AurionsVoteListener.GetInstance().getNode().getNode("services", service, "commands")
+					.getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
+			
+
+			boolean Rewardempty = Reward.isEmpty();
+			
+			if (Rewardempty) {
+				try {
+					Reward = AurionsVoteListener.GetInstance().getNode().getNode("services", "DEFAULT", "commands")
+							.getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
+				} catch (Exception e) {
+					target.get().sendMessage(Text.of("The default service has been deleted"));
+				}
+			}
+			
+			final List<String> Rewardtask = Reward;
+			
+			for (int i = 0; i < Rewardtask.size(); i++) {
+				final int y = i;
+				
+
+				Sponge.getScheduler().createTaskBuilder().execute(()->
+				Sponge.getCommandManager().process(Sponge.getServer().getConsole().getCommandSource().get(),
+						Rewardtask.get(y).replace("<username>", player)))
+				.submit(AurionsVoteListener.GetInstance());
+				
+			}
+			
+			if (AurionsVoteListener.GetInstance().AddExtraRandom) {
+				random(player);
+			}
+
+			if (AurionsVoteListener.GetInstance().cumulativevoting) {
+				cumulative(player, VoteTotal+1);
+			}
+
+		} else {
+			target.get().sendMessage(Text.of("A problem has occurred, please contact an admin"));
+		}
+
+	}
+	
 
 	public static void Notonline(String player, String service) {
 		int VoteTotal = SwitchSQL.TotalsVote(player);
@@ -132,7 +191,7 @@ public class RewardsTask {
 		String playermessage;
 		boolean lucky = false;
 		for (int i = 0; i <= extraramdom.size(); i++) {
-
+			
 			if (i == 0) {
 				Value2 = (float) Float.parseFloat("0." + extraramdom.get(i));
 			} else {
@@ -153,7 +212,7 @@ public class RewardsTask {
 			} else if (chance >= Value1 && chance < Value2 && Value1 != 0.0f) {
 				lucky = true;
 			}
-
+			
 			if (lucky) {
 				String random = String.valueOf(100 - extraramdom.get(i - 1));
 				Reward = AurionsVoteListener.GetInstance().getNode().getNode("ExtraReward", random, "commands")

@@ -61,7 +61,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 @Plugin(id =AurionsVoteListener.AURIONS_ID, name="AurionsVoteListener",version="1.3",authors = {"THEJean_Kevin"}, description = "A votifier listener for Sponge", dependencies = {@Dependency(id = "nuvotifier", optional = true)})
 public class AurionsVoteListener {
 	
-	public int version = 6;
+	public int version = 7;
 	public boolean old = false;
 	
 	@Inject
@@ -126,7 +126,8 @@ public class AurionsVoteListener {
 	public static List<String> voteMessage = new ArrayList<String>();
 	public List<String> messagejoin = new ArrayList<String>();
 	public List<String> annoucement = new ArrayList<String>();
-	
+	public String offlineBroadcast;
+	public String offlinePlayerMessage;
 	//votetop
 	public String votetopformat="<POSITION>. <GREEN><username> - <WHITE><TOTAL>";
 	
@@ -267,11 +268,10 @@ public class AurionsVoteListener {
 		dbTableQueue = Node.getNode("settings","dbTableQueue").getString();
 		votetopnumber = Node.getNode("settings","votetopnumber").getInt();
 		SQLFile = Node.getNode("settings","dbFile").getString();
-		AddExtraRandom = Node.getNode("settings","AddExtraRandom").getBoolean();
+		AddExtraRandom = Node.getNode("settings","AddExtraReward").getBoolean();
 		GiveChanceReward = Node.getNode("settings","GiveChanceReward").getBoolean();
 		delay = Node.getNode("settings","AnnouncementDelay").getInt();
 		cumulativevoting = Node.getNode("settings","cumulativevoting").getBoolean();
-		
 		for(Entry<Object, ? extends ConfigurationNode> markers : rootNode.getNode("ExtraReward").getChildrenMap().entrySet())
 		{
 			String key = (String) markers.getKey();
@@ -292,7 +292,8 @@ public class AurionsVoteListener {
 		voteMessage = Node.getNode("votemessage").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
 		messagejoin = Node.getNode("joinmessage").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
 		annoucement = Node.getNode("Announcement").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
-
+		offlineBroadcast = Node.getNode("Offline","broadcast").getString();
+		offlinePlayerMessage = Node.getNode("Offline","playermessage").getString();
 		//topvote
 		votetopformat = Node.getNode("votetopformat").getString();
 		votetopheader = Node.getNode("votetopheader").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
@@ -302,8 +303,8 @@ public class AurionsVoteListener {
 	
 	public void reloadConfig(){
 		try {
-			 rootNode = loader.load();
-			 int versionconfig = rootNode.getNode("Version").getInt();
+			rootNode = loader.load();
+			int versionconfig = rootNode.getNode("Version").getInt();
             loader.save(rootNode);
             
             if(versionconfig!=version){
@@ -394,7 +395,7 @@ public class AurionsVoteListener {
 	    if(message.toLowerCase().contains("http"))
 	    {
 	    	String url = "";
-	    	Pattern pattern = Pattern.compile("http(\\S+)\\b");
+	    	Pattern pattern = Pattern.compile("http(\\S+)");
 	    	Matcher matcher = pattern.matcher(message);
 	    	if (matcher.find())
 	    	{
@@ -460,11 +461,19 @@ public class AurionsVoteListener {
 			if(SwitchSQL.QueueUsername(username)){
 				
 				List<String> service = SwitchSQL.QueueReward(username);
+				int totalVote = service.size();
 				 for(int i = 0; i < service.size(); i++)
 				    {
-					 RewardsTask.online(username, service.get(i));
+					 RewardsTask.rewardoflline(username, service.get(i));
 					 SwitchSQL.removeQueue(username, service.get(i));
 				    }
+				 	MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
+				 	
+				 	 
+				 	
+					messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(offlineBroadcast.replace("<amt>", String.valueOf(totalVote)), "", username));
+					player.sendMessage(
+							Text.of(AurionsVoteListener.GetInstance().formatmessage(offlinePlayerMessage.replace("<amt>", String.valueOf(totalVote)), "", username)));
 			}else{
 			}
 			if(joinmessage){

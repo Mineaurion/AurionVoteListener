@@ -22,7 +22,27 @@ public class updateconfig {
 
 		if (version <= 5) {
 			version6(loader);
+			version7(loader);
 		}
+		if(version<=6){
+			version7(loader);
+		}
+	}
+	
+	public static void version7(ConfigurationLoader<CommentedConfigurationNode> loader) throws IOException {
+		Asset v7 = plugin.getAsset("Version7.conf").get();
+		File fin = new File(defaultConfig.toString());
+		FileWriter fstream = new FileWriter(fin, true);
+		BufferedWriter out = new BufferedWriter(fstream);
+		
+		out.write(v7.readString());
+		out.close();
+		
+		CommentedConfigurationNode rootNode = loader.load();
+		
+		rootNode.getNode("Version").setValue(7);
+		
+		loader.save(rootNode);
 	}
 
 	public static void version6(ConfigurationLoader<CommentedConfigurationNode> loader) throws IOException {
