@@ -16,8 +16,8 @@ public class MySqlTask {
 	public synchronized static Connection open(String dbHost, int dbPort, String dbUser, String dbPass, String dbName,
 			String dbPrefix) {
 		Database sql = new Database();
-		TableTotal = AurionsVoteListener.GetInstance().dbTableTotal;
-		TableQueue = AurionsVoteListener.GetInstance().dbTableQueue;
+		TableTotal = AurionsVoteListener.dbTableTotal;
+		TableQueue = AurionsVoteListener.dbTableQueue;
 		Sponge.getServer().getConsole().sendMessage(Text.of(">> Connection to database"));
 		Sponge.getServer().getConsole().sendMessage(Text.of(dbHost));
 
@@ -61,6 +61,7 @@ public class MySqlTask {
 			sql.modifyQuery("DROP TABLE `" + dbPrefix + TableQueue + "old`;", connection);
 		}
 
+		
 		if (!sql.tableExists(dbPrefix + TableQueue, connection)) {
 			sql.modifyQuery(
 					"CREATE TABLE `" + dbPrefix + TableQueue

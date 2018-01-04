@@ -19,19 +19,18 @@ public class SwitchSQL {
 	public static String SQLTYPE;
 	public static String SQLFILE;
 	public static Path ConfigDir;
-	public static AurionsVoteListener plugin = new AurionsVoteListener();
 	public static String TableTotal;
 	public static String TableQueue;
-	
+
 	public synchronized static void open(String dbHost, int dbPort, String dbUser, String dbPass, String dbName, String dbPrefix){
-		 SQLTYPE = AurionsVoteListener.GetInstance().SQLType;
+		SQLTYPE = AurionsVoteListener.GetInstance().SQLType;
 		TableTotal = AurionsVoteListener.GetInstance().dbTableTotal;
 		TableQueue = AurionsVoteListener.GetInstance().dbTableQueue;
 		SQLFILE = AurionsVoteListener.GetInstance().SQLFile;
-		ConfigDir = AurionsVoteListener.GetInstance().ConfigDir;
-		if(SQLTYPE.equals("MySQL")){
+		ConfigDir = AurionsVoteListener.GetInstance().defaultConfig;
+		if(SQLTYPE.equalsIgnoreCase("MySQL")){
 			connection = MySqlTask.open(dbHost, dbPort, dbUser, dbPass, dbName, dbPrefix);
-		}else if(SQLTYPE.equals("File")){
+		}else if(SQLTYPE.equalsIgnoreCase("File")){
 			connection = SQLTask.open(SQLFILE,ConfigDir.toString(),dbPrefix);
 		}
 		else{
@@ -56,7 +55,7 @@ public class SwitchSQL {
 			int votePlayer = 0;
 			try {
 				
-				sql = connection.prepareStatement("SELECT `votes` FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` WHERE `IGN`=?");
+				sql = connection.prepareStatement("SELECT `votes` FROM `" + AurionsVoteListener.dbPrefix + TableTotal+"` WHERE `IGN`=?");
 				sql.setString(1, name);
 				ResultSet resultSet = sql.executeQuery();
 				while (resultSet.next()) {
@@ -76,14 +75,14 @@ public class SwitchSQL {
 				int place = 1;
 				try {
 					
-					sql = connection.prepareStatement("SELECT * FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` ORDER BY `votes` DESC LIMIT ?");
-					sql.setLong(1, plugin.votetopnumber);
+					sql = connection.prepareStatement("SELECT * FROM `" + AurionsVoteListener.dbPrefix + TableTotal+"` ORDER BY `votes` DESC LIMIT ?");
+					sql.setLong(1, AurionsVoteListener.votetopnumber);
 					ResultSet resultSet = sql.executeQuery();
 					while(resultSet.next()){
 						String user = resultSet.getString(1);
 						int total = resultSet.getInt(2);
-						String message = plugin.votetopformat.replace("<POSITION>", String.valueOf(place)).replace("<TOTAL>", String.valueOf(total)).replace("<username>", user);
-						src.sendMessage(plugin.formatmessage(message,"", src.getName()));
+						String message = AurionsVoteListener.votetopformat.replace("<POSITION>", String.valueOf(place)).replace("<TOTAL>", String.valueOf(total)).replace("<username>", user);
+						src.sendMessage(AurionsVoteListener.GetInstance().formatmessage(message,"", src.getName()));
 						place++;
 					}
 					sql.close();
@@ -100,7 +99,8 @@ public class SwitchSQL {
 			
 			try {
 				
-				sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"`");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.dbPrefix + TableTotal+"`");
 				sql.execute();
 				sql.close();
 				return true;
@@ -117,7 +117,8 @@ public class SwitchSQL {
 			
 			try {
 				
-				sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"`");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.dbPrefix + TableQueue+"`");
 				sql.execute();
 				sql.close();
 				return true;
@@ -134,12 +135,15 @@ public class SwitchSQL {
 		
 		try {
 			if(SQLTYPE.equals("MySQL")){
-			sql = connection.prepareStatement("INSERT INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` (`IGN`, `votes`, `lastvoted`) VALUES ('" + player + "', " + totalvotes + ", " + now + ") ON DUPLICATE KEY UPDATE `votes` = " + totalvotes + ", `lastvoted` = " + now + ", `IGN` = '" + player + "';");
+			AurionsVoteListener.GetInstance();
+			sql = connection.prepareStatement("INSERT INTO `" + AurionsVoteListener.dbPrefix + TableTotal+"` (`IGN`, `votes`, `lastvoted`) VALUES ('" + player + "', " + totalvotes + ", " + now + ") ON DUPLICATE KEY UPDATE `votes` = " + totalvotes + ", `lastvoted` = " + now + ", `IGN` = '" + player + "';");
 			sql.executeQuery();
 			}else if(SQLTYPE.equals("File")){
-				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` (`IGN`, `votes`, `lastvoted`) VALUES ('"+ player + "', " + totalvotes + ", " + now + ");");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.dbPrefix + TableTotal+"` (`IGN`, `votes`, `lastvoted`) VALUES ('"+ player + "', " + totalvotes + ", " + now + ");");
 				sql.execute();
-				sql = connection.prepareStatement("UPDATE `" + AurionsVoteListener.GetInstance().dbPrefix + TableTotal+"` SET `votes` = " + totalvotes + ", `lastvoted` = " + now + " WHERE `IGN` = '" + player + "';");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("UPDATE `" + AurionsVoteListener.dbPrefix + TableTotal+"` SET `votes` = " + totalvotes + ", `lastvoted` = " + now + " WHERE `IGN` = '" + player + "';");
 				sql.execute();
 			}
 			sql.close();
@@ -150,15 +154,18 @@ public class SwitchSQL {
 			
 		}
 	}
+	
 
 	public static void offline(String username, String serviceName, String timeStamp, String address) {
 		PreparedStatement sql = null;
 		try {
 			if(SQLTYPE.equals("MySQL")){
-				sql = connection.prepareStatement("INSERT INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('"+username+"', '"+serviceName+"', '"+ timeStamp+"', '"+address+"');");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("INSERT INTO `" + AurionsVoteListener.dbPrefix + TableQueue+"` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('"+username+"', '"+serviceName+"', '"+ timeStamp+"', '"+address+"');");
 			sql.executeQuery();
 			}else if(SQLTYPE.equals("File")){
-				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('"+username+"', '"+serviceName+"', '"+ timeStamp+"', '"+address+"');");
+				AurionsVoteListener.GetInstance();
+				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + AurionsVoteListener.dbPrefix + TableQueue+"` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('"+username+"', '"+serviceName+"', '"+ timeStamp+"', '"+address+"');");
 				sql.execute();
 			}
 			sql.close();
@@ -171,7 +178,8 @@ public class SwitchSQL {
 	public static boolean QueueUsername(String username){
 		PreparedStatement sql;
 		try {
-			sql = connection.prepareStatement("SELECT * FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` WHERE `IGN`=?");
+			AurionsVoteListener.GetInstance();
+			sql = connection.prepareStatement("SELECT * FROM `" + AurionsVoteListener.dbPrefix + TableQueue+"` WHERE `IGN`=?");
 			sql.setString(1, username);
 			ResultSet resultSet = sql.executeQuery();
 			if(!resultSet.next()){
@@ -191,7 +199,8 @@ public class SwitchSQL {
 		List<String> service = new ArrayList<String>();
 		try {
 			
-			sql = connection.prepareStatement("SELECT `service` FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` WHERE `IGN`=?");
+			AurionsVoteListener.GetInstance();
+			sql = connection.prepareStatement("SELECT `service` FROM `" + AurionsVoteListener.dbPrefix + TableQueue+"` WHERE `IGN`=?");
 			sql.setString(1, username);
 			ResultSet resultSet = sql.executeQuery();
 			while (resultSet.next()) {
@@ -209,7 +218,8 @@ public class SwitchSQL {
 		PreparedStatement sql;
 		try {
 			
-			sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"` WHERE `IGN`=? AND `service`=?");
+			AurionsVoteListener.GetInstance();
+			sql = connection.prepareStatement("DELETE FROM `" + AurionsVoteListener.dbPrefix + TableQueue+"` WHERE `IGN`=? AND `service`=?");
 			sql.setString(1, username);
 			sql.setString(2, service);
 			sql.execute();
@@ -225,7 +235,8 @@ public class SwitchSQL {
 		List<String> player = new ArrayList<String>();
 		try {
 			
-			sql = connection.prepareStatement("SELECT `IGN` FROM `" + AurionsVoteListener.GetInstance().dbPrefix + TableQueue+"`");
+			AurionsVoteListener.GetInstance();
+			sql = connection.prepareStatement("SELECT `IGN` FROM `" + AurionsVoteListener.dbPrefix + TableQueue+"`");
 			ResultSet resultSet = sql.executeQuery();
 			while (resultSet.next()) {
 				player.add(resultSet.getString("IGN"));

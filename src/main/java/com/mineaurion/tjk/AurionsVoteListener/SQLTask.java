@@ -20,8 +20,8 @@ public class SQLTask {
 		Database sql = new Database();
 		
 		
-		TableTotal = AurionsVoteListener.GetInstance().dbTableTotal;
-		TableQueue = AurionsVoteListener.GetInstance().dbTableQueue;
+		TableTotal = AurionsVoteListener.dbTableTotal;
+		TableQueue = AurionsVoteListener.dbTableQueue;
 		Sponge.getServer().getConsole().sendMessage(Text.of(">> Connection to database"));
 		
 		
@@ -71,6 +71,7 @@ public class SQLTask {
 	      if (!sql.tableExists(dbPrefix + TableQueue, connection)) {
 	        sql.modifyQuery("CREATE TABLE `" + dbPrefix + TableQueue+"` (`IGN` VARCHAR, `service` VARCHAR, `timestamp` VARCHAR, `ip` VARCHAR);", connection);
 	      }
+	   
 		return connection;
 	}
 }
