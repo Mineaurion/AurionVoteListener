@@ -1,2 +1,9 @@
 sudo: false
 language: java
+deploy:
+  provider: releases
+  api_key: "$GH_TOKEN"
+  file: "$HOME/build/libs/*"
+  skip_cleanup: true
+  on:
+   tags: true
