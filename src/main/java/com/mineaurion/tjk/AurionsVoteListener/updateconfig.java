@@ -19,9 +19,7 @@ public class updateconfig {
 	public void update(int version, PluginContainer plugin, Path defaultConfig) throws IOException {
 		updateconfig.plugin = plugin;
 		updateconfig.defaultConfig = defaultConfig;
-
 		version9();
-
 		// Not supported
 		/*
 		 * if (version <= 5) { version6(loader); version7(loader); version8(loader); }
@@ -31,16 +29,12 @@ public class updateconfig {
 	}
 
 	public void version9() {
-
 		try {
 			setValue();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		Paths.get(defaultConfig + "/aurionsvotelistener.conf").toFile()
-				.renameTo(Paths.get(defaultConfig + "/aurionsvotelistener.old").toFile());
-
+		Paths.get(defaultConfig + "/aurionsvotelistener.conf").toFile().renameTo(Paths.get(defaultConfig + "/aurionsvotelistener.old").toFile());
 	}
 
 	private void setValue() throws IOException {
@@ -96,7 +90,6 @@ public class updateconfig {
 				copyafter = true;
 				copy = false;
 			}
-
 			if (copy) {
 				out.write(aLine);
 				out.newLine();
@@ -118,8 +111,7 @@ public class updateconfig {
 		File outF1 = new File(defaultConfig + "/Reward.conf");
 		FileWriter fstream1 = new FileWriter(outF1, true);
 		BufferedWriter out1 = new BufferedWriter(fstream1);
-		
-		
+
 		int count = 0;
 		while ((aLine = in1.readLine()) != null) {
 			if (aLine.startsWith("services"))
@@ -144,7 +136,6 @@ public class updateconfig {
 				copyafter = false;
 			}
 		}
-
 		out1.close();
 		in1.close();
 		
@@ -155,8 +146,7 @@ public class updateconfig {
 		File outF2 = new File(defaultConfig + "/AdvancedReward.conf");
 		FileWriter fstream2 = new FileWriter(outF2, true);
 		BufferedWriter out2 = new BufferedWriter(fstream2);
-		
-		
+
 		count = 0;
 		while ((aLine = in2.readLine()) != null) {
 			if (aLine.startsWith("ExtraReward") || aLine.startsWith("cumulativevoting"))
@@ -181,7 +171,6 @@ public class updateconfig {
 				copyafter = false;
 			}
 		}
-		
 		out2.write("perms{");
 		out2.newLine();
 		out2.write("\"Aurions.example\"=[");
@@ -192,16 +181,15 @@ public class updateconfig {
 		out2.newLine();
 		out2.write("}");
 		out2.newLine();
-		
 		out2.close();
 		in2.close();
 		
-		AurionsVoteListener.GetInstance().settingNode = AurionsVoteListener.settingLoader.load();
-		AurionsVoteListener.GetInstance().rewardNode = AurionsVoteListener.rewardLoader.load();
-		AurionsVoteListener.GetInstance().adrewardNode = AurionsVoteListener.adrewardLoader.load();
+		Main.GetInstance().settingNode = Main.settingLoader.load();
+		Main.GetInstance().rewardNode = Main.rewardLoader.load();
+		Main.GetInstance().adrewardNode = Main.adrewardLoader.load();
 		
-		AurionsVoteListener.GetInstance().getSetting().getNode("Version").setValue(9);
-		AurionsVoteListener.GetInstance().saveConfig();
+		Main.GetInstance().getSetting().getNode("Version").setValue(9);
+		Main.GetInstance().saveConfig();
 
 	}
 	/*
@@ -234,7 +222,7 @@ public class updateconfig {
 	 * out.write(v6.readString()); out.close();
 	 * 
 	 * CommentedConfigurationNode rootNode = loader.load();
-	 * AurionsVoteListener.GetInstance().old = true;
+	 * Main.GetInstance().old = true;
 	 * 
 	 * rootNode.getNode("Version").setValue(6);
 	 * rootNode.getNode("settings","cumulativevoting").setValue(false);

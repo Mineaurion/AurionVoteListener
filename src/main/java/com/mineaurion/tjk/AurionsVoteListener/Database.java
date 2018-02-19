@@ -33,7 +33,6 @@ public class Database {
 	    {
 	      Statement stmt = connection.createStatement();
 	      stmt.execute(query);
-	      
 	      stmt.close();
 	    }
 	    catch (SQLException localSQLException) {}

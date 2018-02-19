@@ -1,0 +1,9 @@
+build
+.gradle
+.settings
+bin
+.classpath
+.project
+.idea
+/.nb-gradle/
+*.iml

@@ -59,13 +59,13 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-@Plugin(id = AurionsVoteListener.AURIONS_ID, name = "AurionsVoteListener", version = "1.3", authors = {
+@Plugin(id = Main.AURIONS_ID, name = "Main", version = "1.3", authors = {
 		"THEJean_Kevin" }, description = "A votifier listener for Sponge", dependencies = {
 				@Dependency(id = "nuvotifier", optional = true) })
-public class AurionsVoteListener {
+public class Main {
 
 	public int version = 9;
-	public boolean old = false;
+	public static boolean old = false;
 
 	@Inject
 	Game game;
@@ -96,11 +96,9 @@ public class AurionsVoteListener {
 	public CommentedConfigurationNode getSetting() {
 		return this.settingNode;
 	}
-
 	public CommentedConfigurationNode getReward() {
 		return this.rewardNode;
 	}
-
 	public CommentedConfigurationNode getAdReward() {
 		return this.adrewardNode;
 	}
@@ -108,7 +106,7 @@ public class AurionsVoteListener {
 	public boolean newConfig = false;
 
 	// global
-	private static AurionsVoteListener instance;
+	private static Main instance;
 	private updateconfig updateconfig;
 	public static String SQLType;
 	public static String SQLFile;
@@ -152,15 +150,13 @@ public class AurionsVoteListener {
 
 	@Listener
 	public void onInitialization(GameInitializationEvent event) {
-		AurionsVoteListener.instance = this;
+		Main.instance = this;
 		updateconfig = new updateconfig();
-
 		settingLoader = HoconConfigurationLoader.builder().setPath(Paths.get(defaultConfig + "/Setting.conf")).build();
 		rewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(defaultConfig + "/Reward.conf")).build();
-		adrewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(defaultConfig + "/AdvancedReward.conf"))
-				.build();
+		adrewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(defaultConfig + "/AdvancedReward.conf")).build();
 
-		getLogger().info("AurionsVoteListener Vote loading...");
+		getLogger().info("Main Vote loading...");
 		getLogger().info("Trying To setup Config Loader");
 
 		Asset configAsset = plugin.getAsset("Setting.conf").get();
@@ -176,32 +172,27 @@ public class AurionsVoteListener {
 					newConfig = true;
 				} else {
 					try {
-
 						getLogger().info("Copying Default Config");
 						configAsset.copyToDirectory(defaultConfig);
 						RewardAsset.copyToDirectory(defaultConfig);
 						AdRewardAsset.copyToDirectory(defaultConfig);
-
 					} catch (IOException e) {
 						e.printStackTrace();
-						getLogger().error(
-								"Could not unpack the default config from the jar! Maybe your Minecraft server doesn't have write permissions?");
+						getLogger().error("Could not unpack the default config from the jar! Maybe your Minecraft server doesn't have write permissions?");
 						return;
 					}
 				}
 			} else {
-				getLogger().error(
-						"Could not find the default config file in the jar! Did you open the jar and delete it?");
+				getLogger().error("Could not find the default config file in the jar! Did you open the jar and delete it?");
 				return;
 			}
 		}
-
 		reloadConfig();
 
 		CommandSpec fakeVoteCmd = CommandSpec.builder().permission("listener.admin")
 				.description(Text.of("send a fakevote"))
 				.arguments(GenericArguments.player(Text.of("player")),
-						GenericArguments.optional(GenericArguments.string(Text.of("service"))))
+						   GenericArguments.optional(GenericArguments.string(Text.of("service"))))
 				.executor(new FakeVoteCommand()).build();
 
 		CommandSpec clearqueueCmd = CommandSpec.builder().permission("listener.admin")
@@ -217,7 +208,6 @@ public class AurionsVoteListener {
 
 		CommandSpec reloadCmd = CommandSpec.builder().permission("listener.admin")
 				.description(Text.of("Reload your configs")).executor(new CommandExecutor() {
-
 					@Override
 					public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 						task.cancel();
@@ -225,7 +215,6 @@ public class AurionsVoteListener {
 						src.sendMessage(Text.of("Reload success"));
 						return CommandResult.success();
 					}
-
 				}).build();
 
 		CommandSpec forcequeueCmd = CommandSpec.builder().permission("listener.admin")
@@ -248,92 +237,80 @@ public class AurionsVoteListener {
 		Sponge.getCommandManager().register(this, listenerCommandSpec, "aurions");
 		Sponge.getCommandManager().register(this, VoteCmd, "vote");
 		Sponge.getCommandManager().register(this, votetopCmd, "votetop");
-		logger.info("AurionsVoteListener Enabled");
-
+		logger.info("Main Enabled");
 	}
 
 	public static void GetSetting(ConfigurationNode Node) {
-		AurionsVoteListener.extrarandom.clear();
-		AurionsVoteListener.voteMessage.clear();
-		AurionsVoteListener.messagejoin.clear();
-		AurionsVoteListener.votetopheader.clear();
-		// seting
-		AurionsVoteListener.onlineOnly = Node.getNode("settings", "onlineonly").getBoolean();
-		AurionsVoteListener.broadcastoffline = Node.getNode("settings", "broadcastoffline").getBoolean();
-		AurionsVoteListener.votecommand = Node.getNode("settings", "votecommand").getBoolean();
-		AurionsVoteListener.joinmessage = Node.getNode("settings", "joinmessage").getBoolean();
-		AurionsVoteListener.SQLType = Node.getNode("settings", "dbMode").getString();
-		AurionsVoteListener.dbHost = Node.getNode("settings", "dbHost").getString();
-		AurionsVoteListener.dbPort = Node.getNode("settings", "dbPort").getInt();
-		AurionsVoteListener.dbPrefix = Node.getNode("settings", "dbPrefix").getString();
-		AurionsVoteListener.dbUser = Node.getNode("settings", "dbUser").getString();
-		AurionsVoteListener.dbPass = Node.getNode("settings", "dbPass").getString();
-		AurionsVoteListener.dbName = Node.getNode("settings", "dbName").getString();
-		AurionsVoteListener.dbTableTotal = Node.getNode("settings", "dbTableTotal").getString();
-		AurionsVoteListener.dbTableQueue = Node.getNode("settings", "dbTableQueue").getString();
-		AurionsVoteListener.votetopnumber = Node.getNode("settings", "votetopnumber").getInt();
-		AurionsVoteListener.SQLFile = Node.getNode("settings", "dbFile").getString();
-		AurionsVoteListener.AddExtraRandom = Node.getNode("settings", "AddExtraReward").getBoolean();
-		AurionsVoteListener.GiveChanceReward = Node.getNode("settings", "GiveChanceReward").getBoolean();
-		AurionsVoteListener.delay = Node.getNode("settings", "AnnouncementDelay").getInt();
-		AurionsVoteListener.cumulativevoting = Node.getNode("settings", "cumulativevoting").getBoolean();
+		Main.extrarandom.clear();
+		Main.voteMessage.clear();
+		Main.messagejoin.clear();
+		Main.votetopheader.clear();
+		// setting
+		Main.onlineOnly = Node.getNode("settings", "onlineonly").getBoolean();
+		Main.broadcastoffline = Node.getNode("settings", "broadcastoffline").getBoolean();
+		Main.votecommand = Node.getNode("settings", "votecommand").getBoolean();
+		Main.joinmessage = Node.getNode("settings", "joinmessage").getBoolean();
+		Main.SQLType = Node.getNode("settings", "dbMode").getString();
+		Main.dbHost = Node.getNode("settings", "dbHost").getString();
+		Main.dbPort = Node.getNode("settings", "dbPort").getInt();
+		Main.dbPrefix = Node.getNode("settings", "dbPrefix").getString();
+		Main.dbUser = Node.getNode("settings", "dbUser").getString();
+		Main.dbPass = Node.getNode("settings", "dbPass").getString();
+		Main.dbName = Node.getNode("settings", "dbName").getString();
+		Main.dbTableTotal = Node.getNode("settings", "dbTableTotal").getString();
+		Main.dbTableQueue = Node.getNode("settings", "dbTableQueue").getString();
+		Main.votetopnumber = Node.getNode("settings", "votetopnumber").getInt();
+		Main.SQLFile = Node.getNode("settings", "dbFile").getString();
+		Main.AddExtraRandom = Node.getNode("settings", "AddExtraReward").getBoolean();
+		Main.GiveChanceReward = Node.getNode("settings", "GiveChanceReward").getBoolean();
+		Main.delay = Node.getNode("settings", "AnnouncementDelay").getInt();
+		Main.cumulativevoting = Node.getNode("settings", "cumulativevoting").getBoolean();
 
 		// Message
-		AurionsVoteListener.voteMessage = Node.getNode("votemessage").getChildrenList().stream()
+		Main.voteMessage = Node.getNode("votemessage").getChildrenList().stream()
 				.map(ConfigurationNode::getString).collect(Collectors.toList());
-		AurionsVoteListener.messagejoin = Node.getNode("joinmessage").getChildrenList().stream()
+		Main.messagejoin = Node.getNode("joinmessage").getChildrenList().stream()
 				.map(ConfigurationNode::getString).collect(Collectors.toList());
-		AurionsVoteListener.annoucement = Node.getNode("Announcement").getChildrenList().stream()
+		Main.annoucement = Node.getNode("Announcement").getChildrenList().stream()
 				.map(ConfigurationNode::getString).collect(Collectors.toList());
-		AurionsVoteListener.offlineBroadcast = Node.getNode("Offline", "broadcast").getString();
-		AurionsVoteListener.offlinePlayerMessage = Node.getNode("Offline", "playermessage").getString();
+		Main.offlineBroadcast = Node.getNode("Offline", "broadcast").getString();
+		Main.offlinePlayerMessage = Node.getNode("Offline", "playermessage").getString();
 		// topvote
-		AurionsVoteListener.votetopformat = Node.getNode("votetopformat").getString();
-		AurionsVoteListener.votetopheader = Node.getNode("votetopheader").getChildrenList().stream()
+		Main.votetopformat = Node.getNode("votetopformat").getString();
+		Main.votetopheader = Node.getNode("votetopheader").getChildrenList().stream()
 				.map(ConfigurationNode::getString).collect(Collectors.toList());
-
 	}
 
 	public static void GetAdvancedReward(ConfigurationNode Node) {
-
-		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("ExtraReward").getChildrenMap()
-				.entrySet()) {
+		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("ExtraReward").getChildrenMap().entrySet()) {
 			String key = (String) markers.getKey();
-			AurionsVoteListener.extrarandom.add(100 - Integer.parseInt(key));
+			Main.extrarandom.add(100 - Integer.parseInt(key));
 		}
-		Collections.sort(AurionsVoteListener.extrarandom);
+		Collections.sort(Main.extrarandom);
 
-		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("cumulativevoting").getChildrenMap()
-				.entrySet()) {
+		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("cumulativevoting").getChildrenMap().entrySet()) {
 			String key = (String) markers.getKey();
-			AurionsVoteListener.cumulativreward.add(Integer.parseInt(key));
+			Main.cumulativreward.add(Integer.parseInt(key));
 		}
-		Collections.sort(AurionsVoteListener.cumulativreward);
+		Collections.sort(Main.cumulativreward);
 
-		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("perms").getChildrenMap()
-				.entrySet()) {
+		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("perms").getChildrenMap().entrySet()) {
 			String key = (String) markers.getKey();
-			AurionsVoteListener.permission.add(key);
+			Main.permission.add(key);
 		}
-		
-		
 	}
 
 	public void reloadConfig() {
 		try {
-
 			settingNode = settingLoader.load();
 			rewardNode = rewardLoader.load();
 			adrewardNode = adrewardLoader.load();
-
 			int versionconfig = settingNode.getNode("Version").getInt();
-
 			saveConfig();
 
 			if (versionconfig != version || newConfig) {
 				updateconfig.update(versionconfig, plugin, defaultConfig);
 			}
-
 			getLogger().info("loading successfull");
 		} catch (IOException e) {
 			getLogger().error("There was an error while reloading your configs");
@@ -343,21 +320,19 @@ public class AurionsVoteListener {
 		GetSetting(settingNode);
 		GetAdvancedReward(adrewardNode);
 
-		if ((SQLType == "MySQL") && (dbHost.isEmpty() || dbHost == null || dbUser.isEmpty() || dbUser == null
-				|| dbPass.isEmpty() || dbPass == null)) {
+		if ((SQLType == "MySQL") && (dbHost.isEmpty() || dbHost == null || dbUser.isEmpty() || dbUser == null || dbPass.isEmpty() || dbPass == null)) {
 			getLogger().warn("Please config database");
 			Sponge.getGame().getServer().getConsole().sendMessage(
-					TextSerializers.formattingCode('ง').deserialize("[AurionsVoteListener] งc----------------------"));
+					TextSerializers.formattingCode('ยง').deserialize("[Main] ยงc----------------------"));
 			Sponge.getGame().getServer().getConsole().sendMessage(
-					TextSerializers.formattingCode('ง').deserialize("[AurionsVoteListener] งcPlease config database"));
+					TextSerializers.formattingCode('ยง').deserialize("[Main] ยงcPlease config database"));
 			Sponge.getGame().getServer().getConsole().sendMessage(
-					TextSerializers.formattingCode('ง').deserialize("[AurionsVoteListener] งc----------------------"));
+					TextSerializers.formattingCode('ยง').deserialize("[Main] ยงc----------------------"));
 		} else {
 			try {
 				if ((SwitchSQL.connection != null) && (!SwitchSQL.connection.isClosed())) {
 					SwitchSQL.Close();
-					SwitchSQL.open(AurionsVoteListener.dbHost, AurionsVoteListener.dbPort, AurionsVoteListener.dbUser,
-							AurionsVoteListener.dbPass, AurionsVoteListener.dbName, AurionsVoteListener.dbPrefix);
+					SwitchSQL.open(Main.dbHost, Main.dbPort, Main.dbUser, Main.dbPass, Main.dbName, Main.dbPrefix);
 				} else {
 					SwitchSQL.open(dbHost, dbPort, dbUser, dbPass, dbName, dbPrefix);
 				}
@@ -367,54 +342,50 @@ public class AurionsVoteListener {
 		}
 
 		// Runnable task
-
 		task = (Task) Task.builder().execute(new Runnable() {
 			public void run() {
 				for (int i = 0; i < annoucement.size(); i++) {
 					MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
-					messageChannel.send(AurionsVoteListener.GetInstance().formatmessage(annoucement.get(i), "", ""));
+					messageChannel.send(Main.this.formatMessage(annoucement.get(i), "", ""));
 				}
 			}
 		}).async().delay(delay, TimeUnit.SECONDS).interval(delay, TimeUnit.SECONDS).submit(plugin);
 		if (delay < 0) {
 			task.cancel();
 		}
-
 	}
 
-	public static AurionsVoteListener GetInstance() {
-		return AurionsVoteListener.instance;
-	}
+    public static Main GetInstance() {
+        return Main.instance;
+    }
 
-	public Text formatmessage(String message, String service, String player) {
+
+    public Text formatMessage(String message, String service, String player) {
+		int votes = 0;
+
 		if (message == null) {
 			return Text.of("");
 		}
-		String serviceName = service;
-		String playerName = player;
-		int votes = 0;
-
 		if (message.contains("<votes>")) {
-			votes = SwitchSQL.TotalsVote(playerName);
+			votes = SwitchSQL.TotalsVote(player);
 			message = message.replace("<votes>", String.valueOf(votes));
 		}
-
 		if (message.indexOf("/") == 0) {
 			message = message.substring(1);
 		}
-		message = message.replace("<servicename>", serviceName).replace("<service>", serviceName)
-				.replace("<SERVICE>", serviceName).replace("<name>", playerName).replace("(name)", playerName)
-				.replace("<player>", playerName).replace("(player)", playerName).replace("<username>", playerName)
-				.replace("(username)", playerName).replace("<name>", playerName).replace("<player>", playerName)
-				.replace("<username>", playerName).replace("[name]", playerName).replace("[player]", playerName)
-				.replace("[username]", playerName).replace("<AQUA>", "งb").replace("<BLACK>", "ง0")
-				.replace("<BLUE>", "ง9").replace("<DARK_AQUA>", "ง3").replace("<DARK_BLUE>", "ง1")
-				.replace("<DARK_GRAY>", "ง8").replace("<DARK_GREEN>", "ง2").replace("<DARK_PURPLE>", "ง5")
-				.replace("<DARK_RED>", "ง4").replace("<GOLD>", "ง6").replace("<GRAY>", "ง7").replace("<GREEN>", "งa")
-				.replace("<LIGHT_PURPLE>", "งd").replace("<RED>", "งc").replace("<WHITE>", "งf")
-				.replace("<YELLOW>", "งe").replace("<BOLD>", "งl").replace("<ITALIC>", "งo").replace("<MAGIC>", "งk")
-				.replace("<RESET>", "งr").replace("<STRIKE>", "งm").replace("<STRIKETHROUGH>", "งm")
-				.replace("<UNDERLINE>", "งn").replace("<votes>", String.valueOf(votes));
+		message = message.replace("<servicename>", service).replace("<service>", service)
+				.replace("<SERVICE>", service).replace("<name>", player).replace("(name)", player)
+				.replace("<player>", player).replace("(player)", player).replace("<username>", player)
+				.replace("(username)", player).replace("<name>", player).replace("<player>", player)
+				.replace("<username>", player).replace("[name]", player).replace("[player]", player)
+				.replace("[username]", player).replace("<AQUA>", "ยงb").replace("<BLACK>", "ยง0")
+				.replace("<BLUE>", "ยง9").replace("<DARK_AQUA>", "ยง3").replace("<DARK_BLUE>", "ยง1")
+				.replace("<DARK_GRAY>", "ยง8").replace("<DARK_GREEN>", "ยง2").replace("<DARK_PURPLE>", "ยง5")
+				.replace("<DARK_RED>", "ยง4").replace("<GOLD>", "ยง6").replace("<GRAY>", "ยง7").replace("<GREEN>", "ยงa")
+				.replace("<LIGHT_PURPLE>", "ยงd").replace("<RED>", "ยงc").replace("<WHITE>", "ยงf")
+				.replace("<YELLOW>", "ยงe").replace("<BOLD>", "ยงl").replace("<ITALIC>", "ยงo").replace("<MAGIC>", "ยงk")
+				.replace("<RESET>", "ยงr").replace("<STRIKE>", "ยงm").replace("<STRIKETHROUGH>", "ยงm")
+				.replace("<UNDERLINE>", "ยงn").replace("<votes>", String.valueOf(votes));
 
 		if (message.toLowerCase().contains("http")) {
 			String url = "";
@@ -425,18 +396,16 @@ public class AurionsVoteListener {
 			}
 			Text text = null;
 			try {
-				text = TextSerializers.formattingCode('ง').deserialize(message).toBuilder()
+				text = TextSerializers.formattingCode('ยง').deserialize(message).toBuilder()
 						.onClick(TextActions.openUrl(new URL(url))).build();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 				return Text.of("Url False, contact admin");
 			}
-
 			return text;
 		}
-
 		else {
-			return TextSerializers.formattingCode('ง').deserialize(message);
+			return TextSerializers.formattingCode('ยง').deserialize(message);
 		}
 
 	}
@@ -446,7 +415,7 @@ public class AurionsVoteListener {
 		Vote vote = event.getVote();
 		String player = vote.getUsername();
 
-		if (AurionsVoteListener.onlineOnly) {
+		if (Main.onlineOnly) {
 			Optional<Player> target = Sponge.getServer().getPlayer(player);
 			if (target.isPresent()) {
 				player = target.get().getName();
@@ -460,8 +429,7 @@ public class AurionsVoteListener {
 			if (target.isPresent()) {
 				RewardsTask.online(player, vote.getServiceName());
 			} else {
-				Sponge.getServer().getConsole()
-						.sendMessage(Text.of("The player is not connected, it's impossible to give reward"));
+				Sponge.getServer().getConsole().sendMessage(Text.of("The player is not connected, it's impossible to give reward"));
 			}
 		}
 	}
@@ -470,15 +438,12 @@ public class AurionsVoteListener {
 	public void onPlayerJoin(ClientConnectionEvent.Join event) {
 		Player player = (Player) event.getTargetEntity();
 		String username = player.getName();
-		if ((AurionsVoteListener.SQLType == "MySQL") && (dbHost.isEmpty() || dbHost == null || dbUser.isEmpty()
-				|| dbUser == null || dbPass.isEmpty() || dbPass == null)) {
+		if ((Main.SQLType == "MySQL") && (dbHost.isEmpty() || dbHost == null || dbUser.isEmpty() || dbUser == null || dbPass.isEmpty() || dbPass == null)) {
 			if (player.hasPermission("*") || player.hasPermission("listener.top")) {
-				player.sendMessage(
-						Text.builder("<AurionsVoteListener> Please config Database.").color(TextColors.RED).build());
+				player.sendMessage(Text.builder("<Main> Please config Database.").color(TextColors.RED).build());
 			}
 		} else {
 			if (SwitchSQL.QueueUsername(username)) {
-
 				List<String> service = SwitchSQL.QueueReward(username);
 				int totalVote = service.size();
 				for (int i = 0; i < service.size(); i++) {
@@ -487,15 +452,12 @@ public class AurionsVoteListener {
 				}
 				MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
 
-				messageChannel.send(AurionsVoteListener.GetInstance()
-						.formatmessage(offlineBroadcast.replace("<amt>", String.valueOf(totalVote)), "", username));
-				player.sendMessage(Text.of(AurionsVoteListener.GetInstance().formatmessage(
-						offlinePlayerMessage.replace("<amt>", String.valueOf(totalVote)), "", username)));
-			} else {
+				messageChannel.send(this.formatMessage(offlineBroadcast.replace("<amt>", String.valueOf(totalVote)), "", username));
+				player.sendMessage(Text.of(this.formatMessage(offlinePlayerMessage.replace("<amt>", String.valueOf(totalVote)), "", username)));
 			}
 			if (joinmessage) {
-				for (int i = 0; i < AurionsVoteListener.messagejoin.size(); i++) {
-					player.sendMessage(formatmessage(AurionsVoteListener.messagejoin.get(i), "", username));
+				for (int i = 0; i < Main.messagejoin.size(); i++) {
+					player.sendMessage(formatMessage(Main.messagejoin.get(i), "", username));
 				}
 			}
 		}
@@ -510,6 +472,5 @@ public class AurionsVoteListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 }
