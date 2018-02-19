@@ -7,3 +7,4 @@ bin
 .idea
 /.nb-gradle/
 *.iml
+out/
