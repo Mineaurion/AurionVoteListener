@@ -1,0 +1,18 @@
+[
+    {
+        "modid": "aurionsvotelistener",
+        "name": "AurionsVoteListener",
+        "version": "1.9",
+        "description": "A votifier listener for Sponge",
+        "authorList": [
+            "THEJean_Kevin"
+        ],
+        "dependencies": [
+            "spongeapi@6.0.0",
+            "nuvotifier"
+        ],
+        "requiredMods": [
+            "spongeapi@6.0.0"
+        ]
+    }
+]
