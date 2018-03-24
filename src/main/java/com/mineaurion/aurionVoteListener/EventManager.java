@@ -42,7 +42,8 @@ public class EventManager {
 			if (target.isPresent()) {
 				plugin.rewardTask.online(player, vote.getServiceName());
 			} else {
-				Sponge.getServer().getConsole().sendMessage(Text.of("The player is not connected, it's impossible to give reward"));
+				plugin.rewardTask.Notonline(player, vote.getServiceName());
+				Sponge.getServer().getConsole().sendMessage(Text.of("The player is not connected, try to give reward"));
 			}
 		}
 	}

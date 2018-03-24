@@ -145,11 +145,15 @@ public class Rewards {
 			final List<String> Rewardtask = reward;
 			for (int i = 0; i < Rewardtask.size(); i++) {
 				final int y = i;
+				try {
 				Sponge.getScheduler().createTaskBuilder()
 						.execute(() -> Sponge.getCommandManager().process(
 								Sponge.getServer().getConsole().getCommandSource().get(),
 								Rewardtask.get(y).replace("<username>", player)))
 						.submit(plugin);
+			} catch (Exception e) {
+				Sponge.getServer().getConsole().sendMessage(Text.of("The command" + Rewardtask.get(y) +" has encountered an error (Cause offline player)"));
+			}
 			}
 
 			if (!broadcast.isEmpty()) {
