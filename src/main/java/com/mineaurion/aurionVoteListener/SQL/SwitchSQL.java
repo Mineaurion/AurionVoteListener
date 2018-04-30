@@ -40,11 +40,6 @@ public class SwitchSQL {
 		}
 	}
 
-	public void Close() throws SQLException
-	{	
-		connection.close();
-	}
-	
 	public synchronized int TotalsVote(String name)
 	{
 		PreparedStatement sql;
@@ -164,19 +159,22 @@ public class SwitchSQL {
 
 	public boolean QueueUsername(String username) {
 		PreparedStatement sql;
+		boolean retur;
 		try {
 			sql = connection.prepareStatement("SELECT * FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=?");
 			sql.setString(1, username);
 			ResultSet resultSet = sql.executeQuery();
 			if (!resultSet.next()) {
-				return false;
+				retur = false;
 			} else {
-				return true;
+				retur = true;
 			}
+			sql.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			retur = false;
 		}
+		return retur;
 	}
 
 	public List<String> QueueReward(String username) throws SQLException {

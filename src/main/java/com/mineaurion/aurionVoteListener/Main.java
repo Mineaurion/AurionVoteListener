@@ -128,9 +128,8 @@ public class Main {
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §c----------------------"));
 		}else {
 			if ((SwitchSQL.connection != null) && (!SwitchSQL.connection.isClosed())) {
-				switchsql.Close();
+				SwitchSQL.connection.close();
 			}
-			
 			switchsql.open();
 		}
 	}
