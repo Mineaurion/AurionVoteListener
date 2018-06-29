@@ -52,17 +52,17 @@ To enable additional rewards, you need to set True to AddExtraReward.
 The extra reward is based on the %
 Example with GiveChanceReward=true
 
-The example below would give a 30% chance of a voter receiving an extra 5 book, and a 10% chance of an extra 5 book and 5 ghast tear.
+The example below would give a 30% chance of a voter receiving an extra 5 book, and a 10.50% chance of an extra 5 book and 5 ghast tear.
 ```
 ExtraReward{
-	30{
+	"30"{
 		broadcast="<GREEN><username> <GOLD>was super lucky and received an <GREEN>extra 5 book"
 		playermessage="<GREEN>You were super lucky and received an <GREEN> extra 5 book "
 		commands=[
 			"give <username> book 5"
 		]
 	}
-	10{
+	"10.5"{
 		broadcast="<GREEN><username> <GOLD>was lucky and received an <GREEN>extra 5 ghast tear”
 		playermessage="<GREEN>You were lucky and received an extra 5 book!"
 		commands=[
