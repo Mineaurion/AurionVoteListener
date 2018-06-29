@@ -1,13 +1,16 @@
 package com.mineaurion.aurionVoteListener.SQL;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -15,77 +18,74 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import com.mineaurion.aurionVoteListener.Config;
 import com.mineaurion.aurionVoteListener.Main;
 
-
-
-
 public class SwitchSQL {
 	private Main plugin;
-	
-	public static Connection connection;
-	
+	private Game game;
 
-	public SwitchSQL(Main main) {
+	public static DataSource datasource;
+
+	public SwitchSQL(Main main, Game games) {
 		plugin = main;
-		
+		game = games;
 	}
 
-	public synchronized void open() throws SQLException 
-	{
+	public synchronized void open() {
 		if (Config.SQLType.equalsIgnoreCase("MySQL")) {
-			connection = plugin.mysqltask.open(Config.dbHost, Config.dbPort, Config.dbUser, Config.dbPass, Config.dbName, Config.dbPrefix);
+			plugin.mysqltask.open(Config.dbHost, Config.dbPort, Config.dbUser, Config.dbPass, Config.dbName,
+					Config.dbPrefix, game);
 		} else if (Config.SQLType.equalsIgnoreCase("File")) {
-			connection = plugin.sqltask.open(Config.SQLFile, plugin.configDir.toString(), Config.dbPrefix);
+			plugin.sqltask.open(Config.SQLFile, plugin.configDir.toString(), Config.dbPrefix, game);
 		} else {
-			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §cPlease choose between mysql and file in the config file "));
+			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§')
+					.deserialize("[AurionsVoteListener] §cPlease choose between mysql and file in the config file "));
 		}
 	}
 
-	public synchronized int TotalsVote(String name)
-	{
-		PreparedStatement sql;
+	public synchronized int TotalsVote(String name) {
 		int votePlayer = 0;
-		
-		try {
-			sql = connection.prepareStatement("SELECT `votes` FROM `" + Config.dbPrefix + Config.dbTableTotal + "` WHERE `IGN`=?");
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection.prepareStatement(
+						"SELECT `votes` FROM `" + Config.dbPrefix + Config.dbTableTotal + "` WHERE `IGN`=?");) {
+
 			sql.setString(1, name);
-			ResultSet resultSet = sql.executeQuery();
-			while (resultSet.next()) {
-				votePlayer = resultSet.getInt("votes");
+			try (ResultSet resultSet = sql.executeQuery();) {
+				while (resultSet.next()) {
+					votePlayer = resultSet.getInt("votes");
+				}
 			}
-			sql.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		return votePlayer;
 	}
 
-	public synchronized void VoteTop(CommandSource src) throws SQLException {
+	public synchronized void VoteTop(CommandSource src) {
 
-		PreparedStatement sql;
 		int place = 1;
-
-		sql = connection.prepareStatement("SELECT * FROM `" + Config.dbPrefix + Config.dbTableTotal + "` ORDER BY `votes` DESC LIMIT ?");
-		sql.setLong(1, Config.votetopnumber);
-		ResultSet resultSet = sql.executeQuery();
-		while (resultSet.next()) {
-			String user = resultSet.getString(1);
-			int total = resultSet.getInt(2);
-			String message = Config.votetopformat.replace("<POSITION>", String.valueOf(place)).replace("<TOTAL>", String.valueOf(total)).replace("<username>", user);
-			src.sendMessage(plugin.formatmessage(message, "", src.getName()));
-			place++;
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection.prepareStatement("SELECT * FROM `" + Config.dbPrefix
+						+ Config.dbTableTotal + "` ORDER BY `votes` DESC LIMIT ?");) {
+			sql.setLong(1, Config.votetopnumber);
+			try (ResultSet resultSet = sql.executeQuery();) {
+				while (resultSet.next()) {
+					String user = resultSet.getString(1);
+					int total = resultSet.getInt(2);
+					String message = Config.votetopformat.replace("<POSITION>", String.valueOf(place))
+							.replace("<TOTAL>", String.valueOf(total)).replace("<username>", user);
+					src.sendMessage(plugin.formatmessage(message, "", src.getName()));
+					place++;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		sql.close();
 	}
 
-	public  synchronized boolean Cleartotals() {
-
-		PreparedStatement sql;
-
-		try {
-			sql = connection.prepareStatement("DELETE FROM `" + Config.dbPrefix + Config.dbTableTotal + "`");
+	public synchronized boolean Cleartotals() {
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection
+						.prepareStatement("DELETE FROM `" + Config.dbPrefix + Config.dbTableTotal + "`");) {
 			sql.execute();
-			sql.close();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -94,13 +94,10 @@ public class SwitchSQL {
 	}
 
 	public synchronized boolean Clearqueue() {
-
-		PreparedStatement sql;
-
-		try {
-			sql = connection.prepareStatement("DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "`");
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection
+						.prepareStatement("DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "`");) {
 			sql.execute();
-			sql.close();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -111,26 +108,19 @@ public class SwitchSQL {
 
 	public synchronized boolean Voted(String player, int totalvotes, long now) {
 
-		PreparedStatement sql = null;
-
-		try {
+		try (Connection connection = datasource.getConnection(); Statement sql = connection.createStatement();) {
 			if (Config.SQLType.equals("MySQL")) {
-				sql = connection.prepareStatement(
-						"INSERT INTO `" + Config.dbPrefix + Config.dbTableTotal + "` (`IGN`, `votes`, `lastvoted`) VALUES ('"
-						+ player + "', " + totalvotes + ", " + now + ") ON DUPLICATE KEY UPDATE `votes` = "
-						+ totalvotes + ", `lastvoted` = " + now + ", `IGN` = '" + player + "';");
-				sql.executeQuery();			
+				sql.executeUpdate("INSERT INTO `" + Config.dbPrefix + Config.dbTableTotal
+						+ "` (`IGN`, `votes`, `lastvoted`) VALUES ('" + player + "', " + totalvotes + ", " + now
+						+ ") ON DUPLICATE KEY UPDATE `votes` = " + totalvotes + ", `lastvoted` = " + now + ", `IGN` = '"
+						+ player + "';");
 			} else if (Config.SQLType.equals("File")) {
-				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + Config.dbPrefix + Config.dbTableTotal
+				sql.executeUpdate("INSERT OR IGNORE INTO `" + Config.dbPrefix + Config.dbTableTotal
 						+ "` (`IGN`, `votes`, `lastvoted`) VALUES ('" + player + "', " + totalvotes + ", " + now
 						+ ");");
-				sql.execute();
-				
-				sql = connection.prepareStatement("UPDATE `" + Config.dbPrefix + Config.dbTableTotal + "` SET `votes` = "
-						+ totalvotes + ", `lastvoted` = " + now + " WHERE `IGN` = '" + player + "';");
-				sql.execute();
+				sql.executeUpdate("UPDATE `" + Config.dbPrefix + Config.dbTableTotal + "` SET `votes` = " + totalvotes
+						+ ", `lastvoted` = " + now + " WHERE `IGN` = '" + player + "';");
 			}
-			sql.close();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -138,84 +128,88 @@ public class SwitchSQL {
 		}
 	}
 
-	public void offline(String username, String serviceName, String timeStamp, String address) throws SQLException {
-		PreparedStatement sql = null;
-		
+	public void offline(String username, String serviceName, String timeStamp, String address) {
+		try (Connection connection = datasource.getConnection(); Statement sql = connection.createStatement();) {
 			if (Config.SQLType.equals("MySQL")) {
-				sql = connection.prepareStatement("INSERT INTO `" + Config.dbPrefix + Config.dbTableQueue
+				sql.executeUpdate("INSERT INTO `" + Config.dbPrefix + Config.dbTableQueue
 						+ "` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('" + username + "', '" + serviceName + "', '"
 						+ timeStamp + "', '" + address + "');");
-				sql.executeQuery();
 			} else if (Config.SQLType.equals("File")) {
-				sql = connection.prepareStatement("INSERT OR IGNORE INTO `" + Config.dbPrefix + Config.dbTableQueue
+				sql.executeUpdate("INSERT OR IGNORE INTO `" + Config.dbPrefix + Config.dbTableQueue
 						+ "` (`IGN`, `service`, `timestamp`, `ip`) VALUES ('" + username + "', '" + serviceName + "', '"
 						+ timeStamp + "', '" + address + "');");
-				sql.execute();
 			}
-			sql.close();
-
-
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean QueueUsername(String username) {
-		PreparedStatement sql;
-		boolean retur;
-		try {
-			sql = connection.prepareStatement("SELECT * FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=?");
+
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection.prepareStatement(
+						"SELECT * FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=?");) {
+
 			sql.setString(1, username);
-			ResultSet resultSet = sql.executeQuery();
-			if (!resultSet.next()) {
-				retur = false;
-			} else {
-				retur = true;
+			try (ResultSet resultSet = sql.executeQuery();) {
+				if (!resultSet.next()) {
+					return false;
+				} else {
+					return true;
+				}
 			}
-			sql.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			retur = false;
+			return false;
 		}
-		return retur;
 	}
 
-	public List<String> QueueReward(String username) throws SQLException {
-		PreparedStatement sql;
+	public List<String> QueueReward(String username) {
+
 		List<String> service = new ArrayList<String>();
 
-		sql = connection.prepareStatement("SELECT `service` FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=?");
-		sql.setString(1, username);
-		ResultSet resultSet;
-		resultSet = sql.executeQuery();
-		while (resultSet.next()) {
-			service.add(resultSet.getString("service"));
-		}
-		sql.close();
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection.prepareStatement(
+						"SELECT `service` FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=?");) {
 
+			sql.setString(1, username);
+			try (ResultSet resultSet = sql.executeQuery();) {
+				while (resultSet.next()) {
+					service.add(resultSet.getString("service"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return service;
-
 	}
 
-	public void removeQueue(String username, String service) throws SQLException {
-		PreparedStatement sql;
-		
-		sql = connection.prepareStatement("DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=? AND `service`=?");
-		sql.setString(1, username);
-		sql.setString(2, service);
-		sql.execute();
-		sql.close();
-	}
-
-	public List<String> QueuePlayer() throws SQLException {
-		PreparedStatement sql;
-		List<String> player = new ArrayList<String>();
-		
-		sql = connection.prepareStatement("SELECT `IGN` FROM `" + Config.dbPrefix + Config.dbTableQueue + "`");
-		ResultSet resultSet = sql.executeQuery();
-		while (resultSet.next()) {
-			player.add(resultSet.getString("IGN"));
+	public void removeQueue(String username, String service) {
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection.prepareStatement(
+						"DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=? AND `service`=?");) {
+			sql.setString(1, username);
+			sql.setString(2, service);
+			sql.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		sql.close();
-		
+	}
+
+	public List<String> QueuePlayer() {
+
+		List<String> player = new ArrayList<String>();
+
+		try (Connection connection = datasource.getConnection();
+				PreparedStatement sql = connection
+						.prepareStatement("SELECT `IGN` FROM `" + Config.dbPrefix + Config.dbTableQueue + "`");
+				ResultSet resultSet = sql.executeQuery();) {
+			while (resultSet.next()) {
+				player.add(resultSet.getString("IGN"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return player;
 	}
-
 }

@@ -174,25 +174,23 @@ public class Rewards {
 	public void random(String player) {
 		Random r = new Random();
 		float chance = r.nextFloat();
-		List<Integer> extraramdom = Config.extrarandom;
+		List<String> extraramdom = Config.extrarandom;
 		float value1 = 0.0f;
-		float value2 = 0;
+		float value2 = 0.0f;
 		List<String> reward = new ArrayList<String>();
 		String broadcast = "";
 		String playermessage= "";
 		boolean lucky = false;
-		
-		Sponge.getServer().getPlayer(player).get().sendMessage(Text.of(String.valueOf(extraramdom.size())));
-		
+				
 		for (int i = 0; i <= extraramdom.size(); i++) {
 			if (i == 0) {
-				value2 = Float.parseFloat("0." + extraramdom.get(i));
+				value2 = (float)(Float.parseFloat(extraramdom.get(i)))/100;
 			} else {
 				if (i != extraramdom.size()) {
-					value1 =  Float.parseFloat("0." + extraramdom.get(i - 1));
-					value2 =  Float.parseFloat("0." + extraramdom.get(i));
+					value1 =  (float)(Float.parseFloat(extraramdom.get(i-1)))/100;
+					value2 =  (float)(Float.parseFloat(extraramdom.get(i)))/100;
 				} else {
-					value1 =  Float.parseFloat("0." + extraramdom.get(i - 1));
+					value1 =  (float)(Float.parseFloat(extraramdom.get(i-1)))/100;
 					value2 = 1.0f;
 				}
 			}
@@ -200,13 +198,15 @@ public class Rewards {
 			if (Config.GiveChanceReward) {
 				if (chance >= value1 && value1 != 0.0f) {
 					lucky = true;
+				}else if(value1 == 0.0f && chance <= value2) {
+					lucky =true;
 				}
 			} else if (chance >= value1 && chance < value2 && value1 != 0.0f || chance == value1 ) {
 				lucky = true;
 			}
 
 			if (lucky) {
-				String random = String.valueOf(100 - extraramdom.get(i - 1));
+				String random = extraramdom.get(i);
 				reward = plugin.config.adrewardNode.getNode("ExtraReward", random, "commands").getChildrenList().stream().map(ConfigurationNode::getString).collect(Collectors.toList());
 				broadcast = plugin.config.adrewardNode.getNode("ExtraReward", random, "broadcast").getString();
 				playermessage = plugin.config.adrewardNode.getNode("ExtraReward", random, "playermessage").getString();

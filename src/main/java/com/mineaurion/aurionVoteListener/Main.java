@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
@@ -37,7 +38,9 @@ import com.mineaurion.aurionVoteListener.commands.CommandManager;
 		"THEJean_Kevin" }, description = "A votifier listener for Sponge", dependencies = {
 				@Dependency(id = "nuvotifier", optional = true) })
 public class Main {
-
+	@Inject
+	private Game game;
+	
 	@Inject
     public PluginContainer pluginContainer;
 	
@@ -78,7 +81,7 @@ public class Main {
 	@Listener
 	public void onServerStart(GameStartedServerEvent event) throws IOException, SQLException {
 		loadCommands(this);
-		switchsql = new SwitchSQL(this); 
+		switchsql = new SwitchSQL(this, game);
 		mysqltask = new MySqlTask();
 		sqltask = new SQLTask();
 		initialiseDatabase();
@@ -127,8 +130,8 @@ public class Main {
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §cPlease config database"));
 			Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.formattingCode('§').deserialize("[AurionsVoteListener] §c----------------------"));
 		}else {
-			if ((SwitchSQL.connection != null) && (!SwitchSQL.connection.isClosed())) {
-				SwitchSQL.connection.close();
+			if ((SwitchSQL.datasource != null) && (!SwitchSQL.datasource.getConnection().isClosed())) {
+				SwitchSQL.datasource.getConnection().close();
 			}
 			switchsql.open();
 		}

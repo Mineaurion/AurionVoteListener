@@ -66,9 +66,13 @@ public class EventManager {
 					plugin.switchsql.removeQueue(username, service.get(i));
 				}
 				MessageChannel messageChannel = MessageChannel.TO_PLAYERS;
-
-				messageChannel.send(plugin.formatmessage(Config.offlineBroadcast.replace("<amt>", String.valueOf(totalVote)), "", username));
-				player.sendMessage(Text.of(plugin.formatmessage(Config.offlinePlayerMessage.replace("<amt>", String.valueOf(totalVote)), "", username)));
+				
+				if(!Config.offlineBroadcast.isEmpty()) {
+					messageChannel.send(plugin.formatmessage(Config.offlineBroadcast.replace("<amt>", String.valueOf(totalVote)), "", username));
+				}
+				if(!Config.offlinePlayerMessage.isEmpty()) {
+					player.sendMessage(Text.of(plugin.formatmessage(Config.offlinePlayerMessage.replace("<amt>", String.valueOf(totalVote)), "", username)));
+				}
 			} 
 			if (Config.joinmessage) {
 				for (int i = 0; i < Config.messagejoin.size(); i++) {

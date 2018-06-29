@@ -119,9 +119,9 @@ public class Config {
 
 		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("ExtraReward").getChildrenMap().entrySet()) {
 			String key = (String) markers.getKey();
-			extrarandom.add(100 - Integer.parseInt(key));
+			extrarandom.add(key);
 		}
-		Collections.sort(extrarandom);
+		Collections.sort(extrarandom,Collections.reverseOrder());
 
 		for (Entry<Object, ? extends ConfigurationNode> markers : Node.getNode("cumulativevoting").getChildrenMap().entrySet()) {
 			String key = (String) markers.getKey();
@@ -153,7 +153,7 @@ public class Config {
 		public static int votetopnumber = 10;
 		public static boolean AddExtraRandom = false;
 		public static boolean GiveChanceReward = true;
-		public static List<Integer> extrarandom = new ArrayList<Integer>();
+		public static List<String> extrarandom = new ArrayList<String>();
 		public static List<Integer> cumulativreward = new ArrayList<Integer>();
 		public static List<String> permission = new ArrayList<String>();
 		public static int delay = 300;
