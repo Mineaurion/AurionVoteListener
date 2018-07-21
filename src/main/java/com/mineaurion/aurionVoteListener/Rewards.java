@@ -182,26 +182,21 @@ public class Rewards {
 		String playermessage= "";
 		boolean lucky = false;
 				
-		for (int i = 0; i <= extraramdom.size(); i++) {
-			if (i == 0) {
-				value2 = (float)(Float.parseFloat(extraramdom.get(i)))/100;
+		for (int i = 0; i < extraramdom.size(); i++) {			
+			if ((i+1) != extraramdom.size()) {
+				value1 =  (float)(Float.parseFloat(extraramdom.get(i)))/100;
+				value2 =  (float)(Float.parseFloat(extraramdom.get(i+1)))/100;
 			} else {
-				if (i != extraramdom.size()) {
-					value1 =  (float)(Float.parseFloat(extraramdom.get(i-1)))/100;
-					value2 =  (float)(Float.parseFloat(extraramdom.get(i)))/100;
-				} else {
-					value1 =  (float)(Float.parseFloat(extraramdom.get(i-1)))/100;
-					value2 = 1.0f;
-				}
+				value1 =  (float)(Float.parseFloat(extraramdom.get(i)))/100;
+				value2 = 0.0f;
 			}
 
+			
 			if (Config.GiveChanceReward) {
-				if (chance >= value1 && value1 != 0.0f) {
+				if (chance >= value1) {
 					lucky = true;
-				}else if(value1 == 0.0f && chance <= value2) {
-					lucky =true;
 				}
-			} else if (chance >= value1 && chance < value2 && value1 != 0.0f || chance == value1 ) {
+			} else if (chance >= value1 && chance < value2 ) {
 				lucky = true;
 			}
 

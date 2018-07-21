@@ -186,11 +186,10 @@ public class SwitchSQL {
 
 	public void removeQueue(String username, String service) {
 		try (Connection connection = datasource.getConnection();
-				PreparedStatement sql = connection.prepareStatement(
-						"DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`=? AND `service`=?");) {
-			sql.setString(1, username);
-			sql.setString(2, service);
-			sql.execute();
+				Statement sql = connection.createStatement();) 
+		{
+			sql.executeUpdate("DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`="+username+" AND `service`="+service+";");
+				
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
