@@ -188,7 +188,8 @@ public class SwitchSQL {
 		try (Connection connection = datasource.getConnection();
 				Statement sql = connection.createStatement();) 
 		{
-			sql.executeUpdate("DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`="+username+" AND `service`="+service+";");
+			String querry  = "DELETE FROM `" + Config.dbPrefix + Config.dbTableQueue + "` WHERE `IGN`='"+username+"' AND `service`='"+service+"';";
+			sql.executeUpdate(querry);
 				
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -223,8 +223,10 @@ public class Rewards {
 				}
 				if (!playermessage.isEmpty()) {
 					Optional<Player> target = Sponge.getServer().getPlayer(player);
-					target.get().sendMessage(
+					if(target.isPresent()) {
+						target.get().sendMessage(
 							Text.of(plugin.formatmessage(playermessage, "", player)));
+					}
 				}
 				lucky = false;
 			}
@@ -257,7 +259,11 @@ public class Rewards {
 				messageChannel.send(plugin.formatmessage(broadcast, "", player));
 			}
 			if (!playermessage.isEmpty()) {
-				Sponge.getServer().getPlayer(player).get().sendMessage(Text.of(plugin.formatmessage(playermessage, "", player)));
+				Optional<Player> target = Sponge.getServer().getPlayer(player);
+				if(target.isPresent()) {
+					target.get().sendMessage(
+						Text.of(plugin.formatmessage(playermessage, "", player)));
+				}
 			}
 		}
 	}

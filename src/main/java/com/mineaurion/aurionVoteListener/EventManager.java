@@ -61,7 +61,7 @@ public class EventManager {
 
 				List<String> service = plugin.switchsql.QueueReward(username);
 				int totalVote = service.size();
-				for (int i = 0; i < service.size(); i++) {
+				for (int i = 0; i < totalVote; i++) {
 					plugin.rewardTask.rewardoflline(username, service.get(i));
 					plugin.switchsql.removeQueue(username, service.get(i));
 				}
