@@ -27,7 +27,7 @@ When the player voted, the plugin gives rewards depending on what you have confi
 <code>/Votetop </code>-> Shows the best Voters
 
 * Command for admin with permission "listener.admin"
-<code>/Aurions reload</code> -> reload the config file
+<code>/sponge plug-ins reload</code> -> reload the config file
 <code>/Aurions cleartotals</code> -> clear the database for the vote
 <code>/Aurions clearqueue</code> ->  clear the database for the queue without giving any reward
 <code>/Aurions forcequeue</code> -> clear the database for the queue by giving the rewards
