@@ -1,0 +1,33 @@
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+}
+
+repositories {
+    maven {
+        name = "Nuvotifier"
+        url  = 'https://repo.parallelblock.com/repository/maven-public/'
+    }
+}
+
+dependencies {
+    compile project(':common')
+    compile 'org.spongepowered:spongeapi:7.1.0'
+    compileOnly "com.vexsoftware:nuvotifier-universal:2.3.4"
+}
+
+sponge.plugin.id = pluginId
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version
+    }
+}
+
+shadowJar {
+
+    archiveName = project.jarName + "-" + project.version + "-S7.1.0.jar"
+
+    dependencies {
+        include(dependency(':common'))
+    }
+}

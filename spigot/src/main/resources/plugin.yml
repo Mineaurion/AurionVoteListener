@@ -1,0 +1,7 @@
+name: AurionVoteListener
+version: @version@
+main: com.mineaurion.aurionvotelistener.Main
+depend: [nuvotifier]
+authors: [TheJean_Kevin, Yann151924]
+description: A votifier listener for Bukkit
+website: https://mineaurion.com

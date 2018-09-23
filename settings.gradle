@@ -1,0 +1,3 @@
+rootProject.name = 'aurionvotelistener'
+
+include 'common', 'spigot', 'sponge5', 'sponge7'
