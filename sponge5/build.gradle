@@ -12,7 +12,7 @@ repositories {
 dependencies {
     compile project(':common')
     compile 'org.spongepowered:spongeapi:5.1.0'
-    compileOnly "com.vexsoftware:nuvotifier-universal:2.3.4"
+    compileOnly "com.vexsoftware:nuvotifier-universal:2.4.1"
 }
 
 sponge.plugin.id = pluginId
