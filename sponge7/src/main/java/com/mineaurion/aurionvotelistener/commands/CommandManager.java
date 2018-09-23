@@ -32,7 +32,7 @@ public class CommandManager {
 				.permission("listener.admin")
 				.description(Text.of("send a fakevote"))
 				.arguments(GenericArguments.player(Text.of("player")),GenericArguments.optional(GenericArguments.string(Text.of("service"))))
-				.executor(new FakeVoteCommand(plugin))
+				.executor(new FakeVoteCommand())
 				.build();
 		 clearqueueCmd = CommandSpec.builder()
 				.permission("listener.admin")
