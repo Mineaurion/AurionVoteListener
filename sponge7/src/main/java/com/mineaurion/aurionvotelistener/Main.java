@@ -37,6 +37,7 @@ import com.mineaurion.aurionvotelistener.commands.CommandManager;
 @Plugin(
 		id = "aurionsvotelistener",
 		name = "AurionsVoteListener",
+		version = "@version@",
 		authors = { "THEJean_Kevin", "Yann151924" },
 		description = "A votifier listener for Sponge",
 		dependencies = {
