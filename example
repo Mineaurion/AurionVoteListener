@@ -1,6 +1,6 @@
 # AurionsVoteListener #
 # http://www.mineaurion.com #
-# settings section
+# config section
 # onlineonly - Only delivers rewards when the player is online.  If they are offline it will wait and deliver when they next join the server"!" #
 # broadcastoffline - Show broadcast message for offline queued votes. #
 # votecommand - Enables the /vote command which will show the message contained in the votemessage section at the bottom of the config. #
@@ -17,7 +17,7 @@
 # dbPass - Database password for MySQL. #
 # dbName - Database name for MySQL. #
 # dbPrefix - Database table prefix. #
-settings {
+config {
     onlineonly=true
 	broadcastoffline=false
 	votecommand=true
