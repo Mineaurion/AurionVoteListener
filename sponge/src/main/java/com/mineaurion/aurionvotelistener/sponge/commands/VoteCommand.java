@@ -18,8 +18,8 @@ public class VoteCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args){
-        if(config.settings.voteCommand){
-            for(String message: config.votemessage){
+        if(config.vote.command){
+            for(String message: config.vote.message){
                 src.sendMessage(plugin.getUtils().formatJoinMessage(message, src.getName()));
             }
         }

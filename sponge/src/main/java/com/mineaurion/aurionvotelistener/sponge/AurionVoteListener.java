@@ -97,6 +97,12 @@ public class AurionVoteListener {
 			disablePlugin();
 		}
 
+		if(config.version < 10){
+			logger.error("Please update your config file");
+			logger.error("Simply delete your config file and the plugin will generate new one");
+			disablePlugin();
+		}
+
 		try{
 			dataSource = new DataSource(this);
 		}
@@ -139,10 +145,10 @@ public class AurionVoteListener {
     }
 
 	private void loadTask(AurionVoteListener main) {
-	    int delay = config.settings.announcementDelay;
+	    int delay = config.announcement.delay;
 		task = Task.builder().execute(new Runnable() {
 			public void run() {
-                for (String announce: config.announcement) {
+                for (String announce: config.announcement.message) {
                     MessageChannel.TO_PLAYERS.send(TextSerializers.FORMATTING_CODE.deserialize(announce));
                 }
 			}

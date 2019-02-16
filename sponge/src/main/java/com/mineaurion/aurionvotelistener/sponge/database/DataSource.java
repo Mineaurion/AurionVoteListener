@@ -89,7 +89,7 @@ public class DataSource {
             );
             Connection connection = sql.getConnection();
         ){
-            sql.setLong(1, config.settings.voteTopNumber);
+            sql.setLong(1, config.voteTop.number);
             try(ResultSet resultSet = sql.executeQuery()) {
                 while (resultSet.next()){
                     String user = resultSet.getString(1);

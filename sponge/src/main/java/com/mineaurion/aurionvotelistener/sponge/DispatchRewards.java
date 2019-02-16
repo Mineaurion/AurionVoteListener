@@ -1,6 +1,5 @@
 package com.mineaurion.aurionvotelistener.sponge;
 
-import com.google.common.collect.Lists;
 import com.mineaurion.aurionvotelistener.sponge.config.AdvancedRewards;
 import com.mineaurion.aurionvotelistener.sponge.config.Config;
 import com.mineaurion.aurionvotelistener.sponge.config.Rewards;
@@ -8,10 +7,6 @@ import com.mineaurion.aurionvotelistener.sponge.database.DataSource;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.serializer.TextSerializers;
-
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -42,7 +37,6 @@ public class DispatchRewards {
         Set<String> configServices = configRewards.services.keySet();
         try{
             dataSource.voted(player, voteTotal + 1, currentMs);
-
             //Ajout reward
             if(configServices.contains(service)){
                 rewards = configRewards.services.get(service).commands;
@@ -66,18 +60,14 @@ public class DispatchRewards {
             final List<String> rewardTask = rewards;
             if (target.isPresent()){
                 sendRewards(rewardTask, service, target.get());
-            }
-            else{
-                sendRewards(rewardTask, service, player);
-            }
-
-            //Envoie des random rewards
-            if(config.settings.addExtraReward){
-                random(player);
-            }
-            //Envoie des rewards cumulatifs
-            if(config.settings.cumulativevoting){
-                cumulative(player, voteTotal + 1);
+                //Envoie des random rewards
+                if(config.settings.addExtraReward){
+                    random(player);
+                }
+                //Envoie des rewards cumulatifs
+                if(config.settings.cumulativevoting){
+                    cumulative(player, voteTotal + 1);
+                }
             }
         }
         catch (SQLException e){
@@ -161,8 +151,8 @@ public class DispatchRewards {
                     ))
                     .submit(plugin);
         }
-        utils.sendOfflineVoteMessage(service, player, rewards.size());
+        if(config.offline.enable){
+            utils.sendOfflineVoteMessage(service, player, rewards.size());
+        }
     }
-
-
 }

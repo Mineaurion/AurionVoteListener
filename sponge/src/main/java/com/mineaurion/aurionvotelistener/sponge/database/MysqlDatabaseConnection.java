@@ -18,7 +18,7 @@ public class MysqlDatabaseConnection extends DatabaseConnection {
         super(
                 String.format(
                     UrlFormat,
-                    settings.database.name,
+                    settings.database.user,
                     settings.database.pass,
                     settings.database.host,
                     settings.database.port,

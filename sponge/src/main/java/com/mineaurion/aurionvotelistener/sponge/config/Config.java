@@ -48,17 +48,9 @@ public final class Config extends PluginConfig {
     @ConfigSerializable
     public static class Settings{
         @Setting
-        public boolean voteCommand = true;
-        @Setting
-        public boolean joinMessage = true;
-        @Setting
-        public int voteTopNumber = 10;
-        @Setting
         public boolean addExtraReward = false;
         @Setting
         public boolean giveChanceReward = false;
-        @Setting
-        public int announcementDelay = 300;
         @Setting
         public boolean cumulativevoting = false;
     }
@@ -75,32 +67,57 @@ public final class Config extends PluginConfig {
         public String playermessage = "&aThanks for voting !";
     }
 
-    @Setting
-    public List<String> votemessage = ImmutableList.of(
-            "&6-----------------------------------------------------",
-            "Vote for us every day for in game rewards and extras",
-            "&6-----------------------------------------------------",
-            "&bYou currently have &a<votes> Votes"
-    );
-    @Setting
-    public List<String> joinmessage = ImmutableList.of(
-            "&6-----------------------------------------------------",
-            "Vote for us every day for in game rewards and extras",
-            "&6-----------------------------------------------------",
-            "&bYou currently have &2<votes> Votes"
-    );
-    @Setting
-    public List<String> announcement = ImmutableList.of(
-            "&6-----------------------------------------------------",
-            "Vote for us every day for in game rewards and extras",
-            "&6-----------------------------------------------------"
-    );
 
+    @Setting
+    public Vote vote = new Vote();
+    @ConfigSerializable
+    public class Vote{
+        @Setting
+        public boolean command = true;
+        @Setting
+        public List<String> message = ImmutableList.of(
+                "&6-----------------------------------------------------",
+                "Vote for us every day for in game rewards and extras",
+                "&6-----------------------------------------------------",
+                "&bYou currently have &a<votes> Votes"
+        );
+    }
+
+    @Setting
+    public Join join = new Join();
+    @ConfigSerializable
+    public class Join{
+        @Setting
+        public boolean enable = true;
+        @Setting
+        public List<String> message = ImmutableList.of(
+                "&6-----------------------------------------------------",
+                "Vote for us every day for in game rewards and extras",
+                "&6-----------------------------------------------------",
+                "&bYou currently have &2<votes> Votes"
+        );
+    }
+
+    @Setting
+    public Announcement announcement = new Announcement();
+    @ConfigSerializable
+    public class Announcement{
+        @Setting
+        public Integer delay = 300;
+        @Setting
+        public List<String> message = ImmutableList.of(
+                "&6-----------------------------------------------------",
+                "Vote for us every day for in game rewards and extras",
+                "&6-----------------------------------------------------"
+        );
+    }
 
     @Setting
     public VoteTop voteTop = new VoteTop();
     @ConfigSerializable
     public static class VoteTop{
+        @Setting
+        public Integer number = 10;
         @Setting
         public String format = "<POSITION>. &a<username> - &f<TOTAL>";
         @Setting

@@ -32,10 +32,15 @@ public class EventManager {
         String votePlayer = vote.getUsername();
         Optional<Player> target = Sponge.getServer().getPlayer(votePlayer);
         String player = target.map(Player::getName).orElse(votePlayer);
-        dispatchRewards.giveRewards(player, vote.getServiceName());
-        if(!target.isPresent()){
-            plugin.sendConsoleMessage("The " + player + " is not connected, try to give reward");
+
+        if(target.isPresent()){
+            dispatchRewards.giveRewards(player, vote.getServiceName());
         }
+        else{
+            plugin.sendConsoleMessage("The " + player + " is not connected, try to give reward");
+            dataSource.offline(player, vote.getServiceName(), String.valueOf(System.currentTimeMillis()), vote.getAddress());
+        }
+
     }
 
     @Listener
@@ -52,8 +57,8 @@ public class EventManager {
                 }
             }
         }
-        if(config.settings.joinMessage){
-            for (String message: config.joinmessage) {
+        if(config.join.enable){
+            for (String message: config.join.message) {
                 player.sendMessage(plugin.getUtils().formatJoinMessage(message, username));
             }
         }
