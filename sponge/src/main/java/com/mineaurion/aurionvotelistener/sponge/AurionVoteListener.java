@@ -38,8 +38,8 @@ import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 @Plugin(
-	id = "aurionsvotelistener",
-	name = "AurionsVoteListener",
+	id = "aurionvotelistener",
+	name = "AurionVoteListener",
 	version = "@version@",
 	authors = { "THEJean_Kevin", "Yann151924" },
 	description = "A votifier listener for Sponge",

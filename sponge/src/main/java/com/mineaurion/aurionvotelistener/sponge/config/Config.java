@@ -15,7 +15,7 @@ public final class Config extends PluginConfig {
     }
 
     @Setting
-    public int version;
+    public int version = 10;
 
     @Setting
     public Database database = new Database();
@@ -71,7 +71,7 @@ public final class Config extends PluginConfig {
     @Setting
     public Vote vote = new Vote();
     @ConfigSerializable
-    public class Vote{
+    public static class Vote{
         @Setting
         public boolean command = true;
         @Setting
@@ -86,7 +86,7 @@ public final class Config extends PluginConfig {
     @Setting
     public Join join = new Join();
     @ConfigSerializable
-    public class Join{
+    public static class Join{
         @Setting
         public boolean enable = true;
         @Setting
@@ -101,7 +101,7 @@ public final class Config extends PluginConfig {
     @Setting
     public Announcement announcement = new Announcement();
     @ConfigSerializable
-    public class Announcement{
+    public static class Announcement{
         @Setting
         public Integer delay = 300;
         @Setting
