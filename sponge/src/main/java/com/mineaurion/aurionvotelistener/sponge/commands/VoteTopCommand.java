@@ -11,17 +11,15 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 public class VoteTopCommand implements CommandExecutor {
 
     private AurionVoteListener plugin;
-    private Config config;
 
     public VoteTopCommand(AurionVoteListener plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args){
-
-        for(String message: config.voteTop.header){
+        Config config = plugin.getConfig();
+        for(String message: config.settings.voteTop.header){
             src.sendMessage(plugin.getUtils().formatJoinMessage(message, src.getName()));
         }
         String voteTop = plugin.getDataSource().voteTop();

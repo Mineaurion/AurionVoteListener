@@ -82,14 +82,14 @@ public class DataSource {
     public String voteTop(){
         int place = 1;
         StringBuilder message = new StringBuilder();
-        String messageFormat = config.voteTop.format;
+        String messageFormat = config.settings.voteTop.format;
         try(
             PreparedStatement sql = connection.getConnection().prepareStatement(
                     String.format("SELECT * FROM %s ORDER BY `votes` DESC limit ?", tableTotal)
             );
             Connection connection = sql.getConnection();
         ){
-            sql.setLong(1, config.voteTop.number);
+            sql.setLong(1, config.settings.voteTop.number);
             try(ResultSet resultSet = sql.executeQuery()) {
                 while (resultSet.next()){
                     String user = resultSet.getString(1);

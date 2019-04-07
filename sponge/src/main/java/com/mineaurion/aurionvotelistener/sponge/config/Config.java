@@ -4,20 +4,15 @@ import com.google.common.collect.ImmutableList;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.io.IOException;
 import java.util.List;
 
 @ConfigSerializable
-public final class Config extends PluginConfig {
+public class Config {
 
-    public Config(String directory) throws IOException{
-        super(directory, "config.conf");
-    }
-
-    @Setting
+    @Setting(comment = "Version of the config file, do not touch")
     public int version = 10;
 
-    @Setting
+    @Setting(comment = "Database settings")
     public Database database = new Database();
     @ConfigSerializable
     public static class Database{
@@ -33,7 +28,7 @@ public final class Config extends PluginConfig {
         public String pass = "";
         @Setting
         public int port = 3306;
-        @Setting
+        @Setting(comment = "Database name")
         public String name = "Listener";
         @Setting
         public String prefix = "";
@@ -53,74 +48,70 @@ public final class Config extends PluginConfig {
         public boolean giveChanceReward = false;
         @Setting
         public boolean cumulativevoting = false;
-    }
-
-    @Setting
-    public Offline offline = new Offline();
-    @ConfigSerializable
-    public static class Offline{
-        @Setting
-        public boolean enable = false;
-        @Setting
-        public String broadcast = "&a<player> voted <amt> times while they were offline and received rewards!";
-        @Setting
-        public String playermessage = "&aThanks for voting !";
-    }
-
-
-    @Setting
-    public Vote vote = new Vote();
-    @ConfigSerializable
-    public static class Vote{
-        @Setting
-        public boolean command = true;
-        @Setting
-        public List<String> message = ImmutableList.of(
-                "&6-----------------------------------------------------",
-                "Vote for us every day for in game rewards and extras",
-                "&6-----------------------------------------------------",
-                "&bYou currently have &a<votes> Votes"
-        );
-    }
-
-    @Setting
-    public Join join = new Join();
-    @ConfigSerializable
-    public static class Join{
-        @Setting
-        public boolean enable = true;
-        @Setting
-        public List<String> message = ImmutableList.of(
-                "&6-----------------------------------------------------",
-                "Vote for us every day for in game rewards and extras",
-                "&6-----------------------------------------------------",
-                "&bYou currently have &2<votes> Votes"
-        );
-    }
-
-    @Setting
-    public Announcement announcement = new Announcement();
-    @ConfigSerializable
-    public static class Announcement{
-        @Setting
-        public Integer delay = 300;
-        @Setting
-        public List<String> message = ImmutableList.of(
-                "&6-----------------------------------------------------",
-                "Vote for us every day for in game rewards and extras",
-                "&6-----------------------------------------------------"
-        );
-    }
-
-    @Setting
-    public VoteTop voteTop = new VoteTop();
-    @ConfigSerializable
-    public static class VoteTop{
-        @Setting
-        public Integer number = 10;
-        @Setting
-        public String format = "<POSITION>. &a<username> - &f<TOTAL>";
-        @Setting
-        public List<String> header = ImmutableList.of("&6---------------- &f( &3Top Voters&f ) &6----------------");
+        @Setting(comment = "This settings will disable the queue for being process, usefull when you have nuvotifier doing this")
+        public boolean queueVote = true;
+        @Setting(comment = "When a player receive all vote in his queue, this settings affect only the message")
+        public Offline offline = new Offline();
+        @ConfigSerializable
+        public static class Offline{
+            @Setting
+            public boolean enable = false;
+            @Setting
+            public String broadcast = "&a<player> voted <amt> times while they were offline and received rewards!";
+            @Setting
+            public String playermessage = "&aThanks for voting !";
+        }
+        @Setting(comment = "When a player receive a vote, this settings affect only the message")
+        public Vote vote = new Vote();
+        @ConfigSerializable
+        public static class Vote{
+            @Setting
+            public boolean command = true;
+            @Setting
+            public List<String> message = ImmutableList.of(
+                    "&6-----------------------------------------------------",
+                    "Vote for us every day for in game rewards and extras",
+                    "&6-----------------------------------------------------",
+                    "&bYou currently have &a<votes> Votes"
+            );
+        }
+        @Setting(comment = "When a player join, this settings affect only the message")
+        public Join join = new Join();
+        @ConfigSerializable
+        public static class Join{
+            @Setting
+            public boolean enable = true;
+            @Setting
+            public List<String> message = ImmutableList.of(
+                    "&6-----------------------------------------------------",
+                    "Vote for us every day for in game rewards and extras",
+                    "&6-----------------------------------------------------",
+                    "&bYou currently have &2<votes> Votes"
+            );
+        }
+        @Setting(comment = "Announcement message and delay configuration")
+        public Announcement announcement = new Announcement();
+        @ConfigSerializable
+        public static class Announcement{
+            @Setting
+            public Integer delay = 300;
+            @Setting
+            public List<String> message = ImmutableList.of(
+                    "&6-----------------------------------------------------",
+                    "Vote for us every day for in game rewards and extras",
+                    "&6-----------------------------------------------------"
+            );
+        }
+        @Setting(comment = "VoteTop message")
+        public VoteTop voteTop = new VoteTop();
+        @ConfigSerializable
+        public static class VoteTop{
+            @Setting
+            public Integer number = 10;
+            @Setting
+            public String format = "<POSITION>. &a<username> - &f<TOTAL>";
+            @Setting
+            public List<String> header = ImmutableList.of("&6---------------- &f( &3Top Voters&f ) &6----------------");
+        }
     }
 }

@@ -23,19 +23,17 @@ public class Utils {
 
     private AurionVoteListener plugin;
     private DataSource dataSource;
-    private Config config;
-    private AdvancedRewards configAdvancedRewards;
-    private Rewards configRewards;
 
     public Utils(AurionVoteListener plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
-        this.configAdvancedRewards = plugin.getAdvancedRewards();
-        this.configRewards = plugin.getRewards();
+        Config config = plugin.getConfig();
+        AdvancedRewards configAdvancedRewards = plugin.getAdvancedRewards();
+        Rewards configRewards = plugin.getRewards();
         this.dataSource = plugin.getDataSource();
     }
 
     public void sendVoteMessage(String serviceName, String playerName){
+        Rewards configRewards = plugin.getRewards();
         Optional<Player> player = Sponge.getServer().getPlayer(playerName);
         Set<String> configServices = configRewards.services.keySet();
         Rewards.Services service;
@@ -69,15 +67,16 @@ public class Utils {
     }
 
     public void sendOfflineVoteMessage(String serviceName, String playerName, int offlineVote){
-        if(!config.offline.broadcast.isEmpty()){
+        Config config = plugin.getConfig();
+        if(!config.settings.offline.broadcast.isEmpty()){
             MessageChannel.TO_PLAYERS.send(
-                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.offline.broadcast, serviceName, playerName, offlineVote))
+                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.settings.offline.broadcast, serviceName, playerName, offlineVote))
             );
         }
-        if(!config.offline.playermessage.isEmpty()){
+        if(!config.settings.offline.playermessage.isEmpty()){
             Optional<Player> player = Sponge.getServer().getPlayer(playerName);
             player.ifPresent(p -> p.sendMessage(
-                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.offline.playermessage, serviceName, playerName, offlineVote))
+                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.settings.offline.playermessage, serviceName, playerName, offlineVote))
             ));
         }
     }

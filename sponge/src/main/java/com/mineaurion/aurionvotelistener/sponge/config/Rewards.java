@@ -5,19 +5,13 @@ import com.google.common.collect.ImmutableMap;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class Rewards extends PluginConfig {
-
-    public Rewards(String directory) throws IOException{
-        super(directory, "reward.conf");
-    }
+public class Rewards{
 
     @Setting
     public Map<String, Services> services = ImmutableMap.of("DEFAULT", new Services());
-    //public Map<String, Services> services = new ImmutableMap.Builder<String, Services>().put("DEFAULT", new Services()).build();
 
     @ConfigSerializable
     public static class Services{

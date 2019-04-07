@@ -34,7 +34,5 @@ shadowJar {
 
     dependencies {
         include(dependency(':common'))
-//        include(dependency(':sponge:api5'))
-//        include(dependency(':sponge:api7'))
     }
 }

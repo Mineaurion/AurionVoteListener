@@ -9,17 +9,16 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 
 public class VoteCommand implements CommandExecutor {
     private AurionVoteListener plugin;
-    private Config config;
 
     public VoteCommand(AurionVoteListener plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args){
-        if(config.vote.command){
-            for(String message: config.vote.message){
+        Config config = plugin.getConfig();
+        if(config.settings.vote.command){
+            for(String message: config.settings.vote.message){
                 src.sendMessage(plugin.getUtils().formatJoinMessage(message, src.getName()));
             }
         }

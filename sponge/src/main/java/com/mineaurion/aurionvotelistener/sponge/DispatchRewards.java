@@ -14,21 +14,18 @@ public class DispatchRewards {
 
     private AurionVoteListener plugin;
     private DataSource dataSource;
-    private Config config;
-    private AdvancedRewards configAdvancedRewards;
-    private Rewards configRewards;
     private Utils utils;
 
     public DispatchRewards(AurionVoteListener plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
-        this.configAdvancedRewards = plugin.getAdvancedRewards();
-        this.configRewards = plugin.getRewards();
         this.dataSource = plugin.getDataSource();
         this.utils = plugin.getUtils();
     }
 
     public void giveRewards(String player, String service){
+        Config config = plugin.getConfig();
+        AdvancedRewards configAdvancedRewards = plugin.getAdvancedRewards();
+        Rewards configRewards = plugin.getRewards();
         int voteTotal = dataSource.totalsVote(player);
         long currentMs = System.currentTimeMillis();
         Optional<Player> target = Sponge.getServer().getPlayer(player);
@@ -77,6 +74,8 @@ public class DispatchRewards {
     }
 
     private void random(String player){
+        Config config = plugin.getConfig();
+        AdvancedRewards configAdvancedRewards = plugin.getAdvancedRewards();
         Map<Integer, AdvancedRewards.ExtraReward> extraReward = configAdvancedRewards.extraReward;
         Random r = new Random();
         float chance = r.nextFloat();
@@ -116,6 +115,7 @@ public class DispatchRewards {
     }
 
     private void cumulative(String player, int vote){
+        AdvancedRewards configAdvancedRewards = plugin.getAdvancedRewards();
         Set<Integer> cumulativeReward = configAdvancedRewards.cumulativeVoting.keySet();
         Map<Integer,AdvancedRewards.ExtraReward> extraReward = configAdvancedRewards.extraReward;
         List<String> reward;
@@ -142,6 +142,7 @@ public class DispatchRewards {
     }
 
     private void sendRewards(List<String> rewards, String service, String player){
+        Config config = plugin.getConfig();
         for(int i = 0; i < rewards.size(); i++){
             final int j = i;
             Sponge.getScheduler().createTaskBuilder()
@@ -151,7 +152,7 @@ public class DispatchRewards {
                     ))
                     .submit(plugin);
         }
-        if(config.offline.enable){
+        if(config.settings.offline.enable){
             utils.sendOfflineVoteMessage(service, player, rewards.size());
         }
     }

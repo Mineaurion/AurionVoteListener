@@ -5,15 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class AdvancedRewards extends PluginConfig{
-
-    public AdvancedRewards(String directory) throws IOException {
-        super(directory, "advanced-reward.conf");
-    }
+public class AdvancedRewards{
 
     @Setting
     public Map<Integer, ExtraReward> extraReward = ImmutableMap.of();

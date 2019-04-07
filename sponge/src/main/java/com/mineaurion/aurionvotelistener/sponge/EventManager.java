@@ -15,13 +15,11 @@ import java.util.Optional;
 public class EventManager {
 
     private AurionVoteListener plugin;
-    private Config config;
     private DispatchRewards dispatchRewards;
     private DataSource dataSource;
 
     public EventManager(AurionVoteListener plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
         this.dispatchRewards = plugin.getDispatchRewards();
         this.dataSource = plugin.getDataSource();
     }
@@ -45,20 +43,22 @@ public class EventManager {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event){
+        Config config = plugin.getConfig();
         Player player = event.getTargetEntity();
         String username = player.getName();
-
-        if(dataSource.queueUsername(username)){
-            List<String> queueReward = dataSource.queueReward(username);
-            if(!queueReward.isEmpty()){
-                for (String vote:queueReward) {
-                    dispatchRewards.giveRewards(username, vote);
-                    dataSource.removeQueue(username, vote);
+        if(config.settings.queueVote){
+            if(dataSource.queueUsername(username)){
+                List<String> queueReward = dataSource.queueReward(username);
+                if(!queueReward.isEmpty()){
+                    for (String vote:queueReward) {
+                        dispatchRewards.giveRewards(username, vote);
+                        dataSource.removeQueue(username, vote);
+                    }
                 }
             }
         }
-        if(config.join.enable){
-            for (String message: config.join.message) {
+        if(config.settings.join.enable){
+            for (String message: config.settings.join.message) {
                 player.sendMessage(plugin.getUtils().formatJoinMessage(message, username));
             }
         }
