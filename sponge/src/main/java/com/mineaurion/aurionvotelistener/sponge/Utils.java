@@ -32,36 +32,18 @@ public class Utils {
         this.dataSource = plugin.getDataSource();
     }
 
-    public void sendVoteMessage(String serviceName, String playerName){
-        Rewards configRewards = plugin.getRewards();
+    public void sendVoteMessage(String broadcast, String playerMessage, String serviceName, String playerName){
         Optional<Player> player = Sponge.getServer().getPlayer(playerName);
-        Set<String> configServices = configRewards.services.keySet();
-        Rewards.Services service;
-
         int votes = dataSource.totalsVote(playerName);
 
-        if(configServices.contains(serviceName)){
-            service = configRewards.services.get(serviceName);
-        }
-        else{
-            try{
-                service = configRewards.services.get("DEFAULT");
-            }
-            catch (Exception exception){
-                player.ifPresent(p -> p.sendMessage(Text.of("The default service has been deleted")));
-                plugin.getLogger().error("The default service has been deleted");
-                return;
-            }
-        }
-
-        if(!service.broadcast.isEmpty()){
+        if(!broadcast.isEmpty()){
             MessageChannel.TO_PLAYERS.send(
-                    TextSerializers.FORMATTING_CODE.deserialize(formatVote(service.broadcast, serviceName, playerName, votes))
+                    TextSerializers.FORMATTING_CODE.deserialize(formatVote(broadcast, serviceName, playerName, votes))
             );
         }
-        if(!service.playerMessage.isEmpty()){
+        if(!playerMessage.isEmpty()){
             player.ifPresent(p -> p.sendMessage(
-                    TextSerializers.FORMATTING_CODE.deserialize(formatVote(service.playerMessage, serviceName, playerName, votes))
+                    TextSerializers.FORMATTING_CODE.deserialize(formatVote(playerMessage, serviceName, playerName, votes))
             ));
         }
     }

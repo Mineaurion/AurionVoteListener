@@ -8,37 +8,27 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import java.util.List;
 import java.util.Map;
 
+@ConfigSerializable
 public class AdvancedRewards{
 
     @Setting
-    public Map<Integer, ExtraReward> extraReward = ImmutableMap.of();
+    public Map<Integer, ExtraServices> extraReward = ImmutableMap.of(10, new ExtraServices());
+
+    @Setting
+    public Map<Integer, ExtraServices> cumulativeVoting = ImmutableMap.of(5, new ExtraServices());
+
+    @Setting
+    public Map<String, ExtraServices> perms = ImmutableMap.of("vote.permission", new ExtraServices());
+
     @ConfigSerializable
-    public class ExtraReward{
+    public static class ExtraServices {
         @Setting
         public String broadcast;
         @Setting
         public String playerMessage;
         @Setting
         public List<String> commands = ImmutableList.of();
+
     }
 
-    @Setting
-    public Map<Integer, CumulativeVoting> cumulativeVoting = ImmutableMap.of();
-    @ConfigSerializable
-    public class CumulativeVoting{
-        @Setting
-        public String broadcast;
-        @Setting
-        public String playerMessage;
-        @Setting
-        public List<String> commands = ImmutableList.of();
-    }
-
-    @Setting
-    public Map<String, Perms> perms = ImmutableMap.of();
-    @ConfigSerializable
-    public class Perms{
-        @Setting
-        public List<String> commands = ImmutableList.of();
-    }
 }

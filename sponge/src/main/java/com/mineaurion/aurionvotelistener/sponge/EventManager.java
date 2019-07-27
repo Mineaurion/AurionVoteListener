@@ -32,7 +32,7 @@ public class EventManager {
         String player = target.map(Player::getName).orElse(votePlayer);
 
         if(target.isPresent()){
-            dispatchRewards.giveRewards(player, vote.getServiceName());
+            dispatchRewards.giveRewards(target.get(), vote.getServiceName());
         }
         else{
             plugin.sendConsoleMessage("The " + player + " is not connected, try to give reward");
@@ -51,7 +51,12 @@ public class EventManager {
                 List<String> queueReward = dataSource.queueReward(username);
                 if(!queueReward.isEmpty()){
                     for (String vote:queueReward) {
-                        dispatchRewards.giveRewards(username, vote);
+                        if(config.settings.offline.enable){
+                            dispatchRewards.giveRewardsOffline(player, vote);
+                        }
+                        else{
+                            dispatchRewards.giveRewards(player, vote);
+                        }
                         dataSource.removeQueue(username, vote);
                     }
                 }

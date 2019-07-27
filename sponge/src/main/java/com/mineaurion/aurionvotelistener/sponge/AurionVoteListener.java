@@ -2,15 +2,12 @@ package com.mineaurion.aurionvotelistener.sponge;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 
 import com.google.common.reflect.TypeToken;
@@ -25,11 +22,9 @@ import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -38,8 +33,6 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -54,9 +47,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 	}
 )
 public class AurionVoteListener {
-	//public CommandManager commandManager;
-	public Task task;
-	//public Config config;
+	private Task task;
 
 	private DataSource dataSource;
     private Config config;
@@ -64,10 +55,7 @@ public class AurionVoteListener {
     private AdvancedRewards advancedRewards;
     private DispatchRewards dispatchRewards;
     private Utils utils;
-    private CommandManager commandManager;
 
-	@Inject
-	Game game;
 	@Inject
 	Logger logger;
 	@Inject
@@ -75,11 +63,6 @@ public class AurionVoteListener {
 	public Path configDir;
     @Inject
     public PluginContainer pluginContainer;
-
-
-	private ConfigurationLoader<CommentedConfigurationNode> configLoader;
-	private ConfigurationLoader<CommentedConfigurationNode> rewardLoader;
-	private ConfigurationLoader<CommentedConfigurationNode> advancedRewardLoader;
 
 	@Listener
 	public void preInit(GamePreInitializationEvent e){
@@ -98,15 +81,9 @@ public class AurionVoteListener {
 			}
 			loadConfig();
 		}
-        catch (IOException| ObjectMappingException exception){
+        catch (IOException exception){
 			logger.error("[AurionsVoteListener] Something went wrong with config file", exception);
 			logger.error("[AurionsVoteListener] Disabling plugin");
-			disablePlugin();
-		}
-
-		if(config.version < 10){
-			logger.error("[AurionsVoteListener] Please update your config file");
-			logger.error("[AurionsVoteListener] Simply delete your config file and the plugin will generate new one");
 			disablePlugin();
 		}
 
@@ -130,9 +107,8 @@ public class AurionVoteListener {
 		logger.info("AurionsVoteListener Enabled");
 	}
 
-	//TODO : Check if it's work
 	@Listener
-	public void onServerReload(GameReloadEvent event) throws IOException, ObjectMappingException{
+	public void onServerReload(GameReloadEvent event){
 		task.cancel();
 		loadConfig();
 		loadTask(this);
@@ -166,19 +142,24 @@ public class AurionVoteListener {
 	}
 
 	private void loadCommands(AurionVoteListener plugin) {
-	    commandManager = new CommandManager(plugin);
-		Sponge.getCommandManager().register(this, commandManager.listenerCommand, "aurions");
+	    CommandManager commandManager = new CommandManager(plugin);
+		Sponge.getCommandManager().register(this, commandManager.listenerCommand, "aurion");
 		Sponge.getCommandManager().register(this, commandManager.voteCommand, "vote");
 		Sponge.getCommandManager().register(this, commandManager.voteTopCommand, "votetop");
 	}
 
-	private void loadConfig() throws IOException, ObjectMappingException{
-		this.configLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "config.conf")).build();
-		this.rewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "config.conf")).build();
-		this.advancedRewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "config.conf")).build();
-		this.config = configLoader.load().getValue(TypeToken.of(Config.class));
-		this.rewards = rewardLoader.load().getValue(TypeToken.of(Rewards.class));
-		this.advancedRewards = advancedRewardLoader.load().getValue(TypeToken.of(AdvancedRewards.class));
+	private void loadConfig(){
+		ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "config.conf")).build();
+		ConfigurationLoader<CommentedConfigurationNode> rewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "reward.conf")).build();
+		ConfigurationLoader<CommentedConfigurationNode> advancedRewardLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configDir + File.separator +  "advanced-reward.conf")).build();
+		try{
+			this.config = configLoader.load().getValue(TypeToken.of(Config.class));
+			this.rewards = rewardLoader.load().getValue(TypeToken.of(Rewards.class));
+			this.advancedRewards = advancedRewardLoader.load().getValue(TypeToken.of(AdvancedRewards.class));
+		}
+		catch (IOException | ObjectMappingException exception){
+			logger.error("Error loading file", exception);
+		}
 	}
 
 

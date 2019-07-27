@@ -8,8 +8,6 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.text.Text;
 
-import java.sql.SQLException;
-
 public class ClearTotalsCommand implements CommandExecutor {
 
     private AurionVoteListener plugin;
@@ -25,7 +23,7 @@ public class ClearTotalsCommand implements CommandExecutor {
         if(src.hasPermission("listener.admin")){
             dataSource.clearTotals();
             src.sendMessage(Text.of("Cleared successfull"));
-            return CommandResult.empty();
+            return CommandResult.success();
         }
         else{
             src.sendMessage(Text.of("You don't have permission"));

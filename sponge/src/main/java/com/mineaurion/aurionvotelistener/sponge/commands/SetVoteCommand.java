@@ -22,16 +22,9 @@ public class SetVoteCommand implements CommandExecutor {
             String player = args.<String>getOne("player").get();
             int vote = args.<Integer>getOne("vote").get();
             long currentMs = System.currentTimeMillis();
-            try{
-                plugin.getDataSource().voted(player, vote, currentMs);
-                src.sendMessage(Text.of("Set vote successfull"));
-                return CommandResult.success();
-            }
-            catch(SQLException exception){
-                plugin.getLogger().error("SQL Exception", exception);
-                src.sendMessage(Text.of("SetVote fail, check console"));
-                return CommandResult.empty();
-            }
+            plugin.getDataSource().voted(player, vote, currentMs);
+            src.sendMessage(Text.of("Set vote successfull"));
+            return CommandResult.success();
         }
         else{
             src.sendMessage(Text.of("You don't have permission"));

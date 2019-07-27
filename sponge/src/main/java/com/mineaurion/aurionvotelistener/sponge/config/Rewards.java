@@ -8,6 +8,7 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import java.util.List;
 import java.util.Map;
 
+@ConfigSerializable
 public class Rewards{
 
     @Setting

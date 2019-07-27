@@ -46,10 +46,14 @@ public class DataSource {
             String createTableQueue = "CREATE TABLE `" + tableQueue + "` (`IGN` varchar(32) NOT NULL,`service` varchar(64), `timestamp` varchar(32), `ip` varchar(200));";
             if(!connection.tableExist(tableTotal)){
                 connection.executeStatement(createTableTotal);
+                connection.getStatement().close();
+                connection.getConnection().close();
                 plugin.getLogger().info("Table created");
             }
             if(!connection.tableExist(tableQueue)){
                 connection.executeStatement(createTableQueue);
+                connection.getStatement().close();
+                connection.getConnection().close();
                 plugin.getLogger().info("Table created");
             }
         }
@@ -136,32 +140,44 @@ public class DataSource {
         }
     }
 
-    public synchronized void voted(String player, int totalVotes, long now) throws SQLException{
-        PreparedStatement sql;
+    public synchronized void voted(String player, int totalVotes, long now){
         if(config.database.storage.equalsIgnoreCase("sqlite")){
-            sql = connection.getPreparedStatement(
-                    String.format("INSERT OR REPLACE INTO %s (IGN, votes, lastvoted) " +
-                            "VALUES (?, (SELECT Case When exists(SELECT 1 FROM %s WHERE IGN=?)THEN ? ELSE ? END), ?)", tableTotal, tableTotal)
-            );
-            sql.setString(1, player);
-            sql.setString(2, player);
-            sql.setInt(3, totalVotes);
-            sql.setInt(4, totalVotes + 1);
-            sql.setLong(5, now);
+            try(
+                PreparedStatement sql = connection.getPreparedStatement(
+                    String.format("INSERT OR REPLACE INTO %s (IGN, votes, lastvoted) " + "VALUES (?, (SELECT Case When exists(SELECT 1 FROM %s WHERE IGN=?)THEN ? ELSE ? END), ?)", tableTotal, tableTotal)
+                );
+                Connection connection = sql.getConnection();
+            ) {
+                sql.setString(1, player);
+                sql.setString(2, player);
+                sql.setInt(3, totalVotes);
+                sql.setInt(4, totalVotes + 1);
+                sql.setLong(5, now);
+                sql.executeUpdate();
+            }
+            catch (SQLException e){
+                plugin.getLogger().error("SQL Error", e);
+            }
         }
         else {
-            sql = connection.getPreparedStatement(
+            try(
+                PreparedStatement sql = connection.getPreparedStatement(
                     String.format("INSERT INTO %s (IGN, votes, lastvoted) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE IGN=?, votes=?, lastvoted=?", tableTotal)
-            );
-            sql.setString(1, player);
-            sql.setInt(2, totalVotes);
-            sql.setLong(3, now);
-            sql.setString(4, player);
-            sql.setInt(5, totalVotes + 1);
-            sql.setLong(6, now);
+                );
+                Connection connection = sql.getConnection();
+            ) {
+                sql.setString(1, player);
+                sql.setInt(2, totalVotes);
+                sql.setLong(3, now);
+                sql.setString(4, player);
+                sql.setInt(5, totalVotes + 1);
+                sql.setLong(6, now);
+                sql.executeUpdate();
+            }
+            catch (SQLException e){
+                plugin.getLogger().error("SQL Error", e);
+            }
         }
-        Connection connection = sql.getConnection();
-        sql.executeUpdate();
     }
 
     public void offline(String player, String serviceName, String timeStamp, String address){

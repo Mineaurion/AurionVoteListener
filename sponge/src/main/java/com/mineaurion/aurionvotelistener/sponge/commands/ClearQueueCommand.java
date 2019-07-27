@@ -8,8 +8,6 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.text.Text;
 
-import java.sql.SQLException;
-
 public class ClearQueueCommand implements CommandExecutor {
 
     private AurionVoteListener plugin;

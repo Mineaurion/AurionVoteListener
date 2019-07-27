@@ -54,40 +54,47 @@ public abstract class DatabaseConnection {
     }
 
     public ResultSet executeQuery(String query) throws SQLException{
-        try(Statement statement = getStatement();
-            Connection connection = statement.getConnection()) {
+        try(
+            Statement statement = getStatement();
+            Connection connection = statement.getConnection()
+        ) {
             return statement.executeQuery(query);
         }
     }
 
     public boolean executeStatement(String query) throws SQLException{
-        try(Statement statement = getStatement();
-        Connection connection = statement.getConnection()) {
+        try(
+            Statement statement = getStatement();
+            Connection connection = statement.getConnection()
+        ) {
             return statement.execute(query);
         }
     }
 
     public int executeUpdate(String query) throws SQLException {
-        try(Statement statement = getStatement();
-        Connection connection = statement.getConnection()) {
+        try(
+            Statement statement = getStatement();
+            Connection connection = statement.getConnection()
+        ) {
             return statement.executeUpdate(query);
         }
     }
 
     public boolean tableExist(String table) throws SQLException{
-        Statement statement = getStatement();
-        Connection connection = statement.getConnection();
-        DatabaseMetaData databaseMetaData = connection.getMetaData();
-        ResultSet rs = databaseMetaData.getTables(null, null, table, null);
-        if(rs.next()) {
+
+        try(
+            Statement statement = getStatement();
+            Connection connection = statement.getConnection();
+
+        ){
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet rs = databaseMetaData.getTables(null, null, table, null);
+            if(rs.next()) {
+                rs.close();
+                return true;
+            }
             rs.close();
-            return true;
+            return false;
         }
-        rs.close();
-        return false;
     }
-
-
-
-
 }

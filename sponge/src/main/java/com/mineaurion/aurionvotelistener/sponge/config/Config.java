@@ -9,9 +9,6 @@ import java.util.List;
 @ConfigSerializable
 public class Config {
 
-    @Setting(comment = "Version of the config file, do not touch")
-    public int version = 10;
-
     @Setting(comment = "Database settings")
     public Database database = new Database();
     @ConfigSerializable
@@ -42,12 +39,12 @@ public class Config {
     public Settings settings = new Settings();
     @ConfigSerializable
     public static class Settings{
-        @Setting
-        public boolean addExtraReward = false;
-        @Setting
-        public boolean giveChanceReward = false;
-        @Setting
-        public boolean cumulativevoting = false;
+        @Setting(comment = "Reward based on permission")
+        public boolean permissionReward = false;
+        @Setting(comment = "Reward based on chance, the number represente a percentage")
+        public boolean chanceReward = false;
+        @Setting(comment = "Reward based on x times the player has vote")
+        public boolean cumulativeReward = false;
         @Setting(comment = "This settings will disable the queue for being process, usefull when you have nuvotifier doing this")
         public boolean queueVote = true;
         @Setting(comment = "When a player receive all vote in his queue, this settings affect only the message")
