@@ -45,3 +45,7 @@ If you'd like to check out the GitHub Repository, you can do so [here](https://g
 
 ## Discord
 If you need support regarding our plugin, come on our [discord](https://discord.gg/Zn4ZbP9)
+
+## Migrating from 2.4 version
+If you come from the 2.4, don't worry the plugin create a new folder call aurionvotelistener (same as before but without the `s`) with the default config.
+You need to transfer you actual config to the new one, the database is unchanged.
