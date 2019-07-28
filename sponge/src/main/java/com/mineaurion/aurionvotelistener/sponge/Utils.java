@@ -55,10 +55,10 @@ public class Utils {
                     TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.settings.offline.broadcast, serviceName, playerName, offlineVote))
             );
         }
-        if(!config.settings.offline.playermessage.isEmpty()){
+        if(!config.settings.offline.playerMessage.isEmpty()){
             Optional<Player> player = Sponge.getServer().getPlayer(playerName);
             player.ifPresent(p -> p.sendMessage(
-                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.settings.offline.playermessage, serviceName, playerName, offlineVote))
+                    TextSerializers.FORMATTING_CODE.deserialize(formatOfflineVote(config.settings.offline.playerMessage, serviceName, playerName, offlineVote))
             ));
         }
     }

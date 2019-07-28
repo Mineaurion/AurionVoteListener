@@ -56,7 +56,7 @@ public class Config {
             @Setting
             public String broadcast = "&a<player> voted <amt> times while they were offline and received rewards!";
             @Setting
-            public String playermessage = "&aThanks for voting !";
+            public String playerMessage = "&aThanks for voting !";
         }
         @Setting(comment = "When a player receive a vote, this settings affect only the message")
         public Vote vote = new Vote();
