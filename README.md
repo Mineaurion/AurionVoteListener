@@ -27,7 +27,7 @@ Without permission :
 * <code>/votetop </code>-> Shows the best Voters
 
 Command for admin with permission "listener.admin"
-* <code>/sponge plug-ins reload</code> -> reload the config file
+* <code>/sponge plugins reload</code> -> reload the config file
 * <code>/aurion cleartotals</code> -> clear the database for the vote
 * <code>/aurion clearqueue</code> ->  clear the database for the queue without giving any reward
 * <code>/aurion forcequeue</code> -> clear the database for the queue by giving the rewards
