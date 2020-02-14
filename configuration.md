@@ -11,7 +11,7 @@ services {
          ]
     }
 	
-    MC-Index {
+    "Minecraft-MP.com" {
         broadcast="&a<username> &6has voted @ &a<service> &6and received &a5 Diamonds !"
         playerMessage="&aThanks for voting at &b<service> !"
         commands=[
@@ -21,7 +21,7 @@ services {
 }
 
 ```
-Now if you want to add web site, just add this under services:
+Now if you want to add web site, just add this under services (if needed enclose the service string with quotes) :
 ```
     NameOfTheService {
         broadcast="&a<username> &6has voted @ &a<service> &6and received &a5 Diamonds !"
